@@ -14,12 +14,14 @@ import {
   Mic2,
   Plus,
   Radio,
+  RotateCcw,
   Route,
+  Save,
   Sparkles,
   Trash2,
   Users,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { content } from '../lib/content';
 
 type TrackId = 'rural-kids' | 'urban-kids' | 'rural-youth' | 'urban-youth';
@@ -43,6 +45,15 @@ type FieldEntry = FieldDraft & {
   phase: number;
   createdAt: string;
 };
+
+type SavedWorkspace = {
+  activePhase?: number;
+  done?: Record<string, boolean>;
+  fieldEntries?: FieldEntry[];
+  trackId?: TrackId;
+};
+
+const STORAGE_KEY = 'erm:v2:workspace';
 
 const trackNames: Record<TrackId, string> = {
   'rural-kids': 'Oficina da Vila',
@@ -111,6 +122,7 @@ export default function Home() {
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [fieldDraft, setFieldDraft] = useState<FieldDraft>(emptyDraft);
   const [fieldEntries, setFieldEntries] = useState<FieldEntry[]>([]);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   const track = useMemo(() => content.tracks.find((item) => item.id === trackId)!, [trackId]);
   const mission = track.missions.find((item) => item.phase === activePhase) ?? track.missions[0];
@@ -119,6 +131,52 @@ export default function Home() {
   const currentEntries = fieldEntries.filter((entry) => entry.trackId === trackId);
   const missionEntries = currentEntries.filter((entry) => entry.missionId === mission.id);
   const sharedEntries = fieldEntries.filter((entry) => entry.shared);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+
+      if (raw) {
+        const saved = JSON.parse(raw) as SavedWorkspace;
+
+        if (saved.trackId && saved.trackId in trackNames) {
+          setTrackId(saved.trackId);
+        }
+
+        if (typeof saved.activePhase === 'number' && saved.activePhase >= 1 && saved.activePhase <= 14) {
+          setActivePhase(saved.activePhase);
+        }
+
+        if (saved.done && typeof saved.done === 'object') {
+          setDone(saved.done);
+        }
+
+        if (Array.isArray(saved.fieldEntries)) {
+          setFieldEntries(saved.fieldEntries);
+        }
+      }
+    } catch {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } finally {
+      setHasHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydrated) {
+      return;
+    }
+
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        activePhase,
+        done,
+        fieldEntries,
+        trackId,
+      } satisfies SavedWorkspace),
+    );
+  }, [activePhase, done, fieldEntries, hasHydrated, trackId]);
 
   function updateFieldDraft(field: keyof FieldDraft, value: string | boolean) {
     setFieldDraft((draft) => ({ ...draft, [field]: value }));
@@ -153,6 +211,14 @@ export default function Home() {
 
   function removeFieldEntry(id: string) {
     setFieldEntries((entries) => entries.filter((entry) => entry.id !== id));
+  }
+
+  function resetWorkspace() {
+    window.localStorage.removeItem(STORAGE_KEY);
+    setDone({});
+    setFieldDraft(emptyDraft);
+    setFieldEntries([]);
+    setActivePhase(1);
   }
 
   return (
@@ -196,6 +262,16 @@ export default function Home() {
             </div>
             <div className="progress" aria-label={`Progresso ${pct}%`}>
               <span style={{ width: `${pct}%` }} />
+            </div>
+            <div className="storage-panel">
+              <span>
+                <Save size={15} />
+                {hasHydrated ? 'Salvo neste navegador' : 'Preparando memoria local'}
+              </span>
+              <button className="text-action" type="button" onClick={resetWorkspace}>
+                <RotateCcw size={15} />
+                Limpar registros
+              </button>
             </div>
           </div>
         </aside>

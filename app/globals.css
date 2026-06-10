@@ -122,7 +122,8 @@ p {
 .view-tabs button,
 .phase-node,
 .primary-action,
-.icon-action {
+.icon-action,
+.text-action {
   display: flex;
   align-items: center;
   border: 1px solid var(--line);
@@ -184,6 +185,36 @@ p {
   display: block;
   height: 100%;
   background: linear-gradient(90deg, var(--forest), var(--gold));
+}
+
+.storage-panel {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.storage-panel span,
+.text-action {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.storage-panel span {
+  justify-content: flex-start !important;
+  background: #e7f2e9;
+  color: var(--forest) !important;
+}
+
+.text-action {
+  justify-content: center;
+  border-color: var(--line);
+  background: #f2eadc;
+  color: var(--clay);
 }
 
 .mainstage {

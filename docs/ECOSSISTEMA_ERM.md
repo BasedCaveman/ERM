@@ -47,6 +47,27 @@ O ERM nao deve ser tratado como um curso linear de empreendedorismo infantil. El
 - Painel do facilitador.
 - Registro offscreen.
 
+## Motion language
+
+As proximas iteracoes podem usar Anime.js como candidato tecnico para enriquecer a experiencia com animacoes leves e intencionais. O objetivo nao e decorar a interface, mas tornar estados cognitivos mais legiveis.
+
+Usos desejados:
+
+- Transicoes suaves entre Mapa, Missao, Caderno, Radio e Mural.
+- Microfeedback quando uma evidencia e registrada, compartilhada ou removida.
+- Stagger sutil para revelar regioes do mapa e registros do caderno.
+- Linhas SVG ou motion paths para mostrar conexoes entre missao, territorio e mural.
+- Timelines curtas para sequencias de descoberta, teste e reflexao.
+- Animacoes responsivas que respeitem tamanho de tela, contexto e reducao de movimento.
+
+Regras de uso:
+
+- Cada animacao precisa explicar uma mudanca de estado, orientar atencao ou gerar recompensa emocional breve.
+- Evitar loops permanentes, excesso de movimento e efeitos que concorram com leitura, escuta ou tomada de decisao.
+- Respeitar `prefers-reduced-motion`.
+- Preferir duracoes curtas, easings organicos e movimentos discretos.
+- Importar apenas os modulos necessarios para nao inflar o bundle.
+
 ## Regras da IA facilitadora
 
 - Fazer no maximo uma pergunta principal por vez.
