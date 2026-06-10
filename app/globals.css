@@ -30,6 +30,12 @@ button {
   font: inherit;
 }
 
+input,
+select,
+textarea {
+  font: inherit;
+}
+
 .shell {
   width: min(1440px, 100%);
   margin: 0 auto;
@@ -115,7 +121,8 @@ p {
 .track-button,
 .view-tabs button,
 .phase-node,
-.primary-action {
+.primary-action,
+.icon-action {
   display: flex;
   align-items: center;
   border: 1px solid var(--line);
@@ -301,6 +308,22 @@ p {
   white-space: nowrap;
 }
 
+.primary-action.compact {
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.icon-action {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: #f2eadc;
+  color: var(--clay);
+}
+
 .task-card.strong {
   background: var(--paper-strong);
 }
@@ -326,6 +349,183 @@ p {
 
 .notebook-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.fieldbook-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  gap: 16px;
+}
+
+.field-form,
+.entry-panel,
+.empty-state {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.field-form {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.form-heading,
+.entry-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.field-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.field-form input,
+.field-form select,
+.field-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  outline: none;
+}
+
+.field-form input,
+.field-form select {
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+.field-form textarea {
+  min-height: 112px;
+  resize: vertical;
+  padding: 12px;
+  line-height: 1.45;
+}
+
+.field-form input:focus,
+.field-form select:focus,
+.field-form textarea:focus {
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px rgba(37, 111, 90, 0.14);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.check-row {
+  display: flex !important;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 10px !important;
+  color: var(--muted) !important;
+  font-weight: 700 !important;
+}
+
+.check-row input {
+  width: 18px;
+  min-height: 18px;
+  accent-color: var(--forest);
+}
+
+.entry-panel {
+  min-width: 0;
+  padding: 18px;
+}
+
+.entry-panel-head {
+  margin-bottom: 14px;
+}
+
+.entry-panel-head span {
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: #e7f2e9;
+  color: var(--forest);
+  padding: 8px 10px;
+  font-weight: 800;
+}
+
+.entry-list {
+  display: grid;
+  gap: 10px;
+  max-height: 620px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  padding: 20px;
+  text-align: center;
+}
+
+.empty-state svg {
+  color: var(--forest);
+}
+
+.entry-card {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  min-height: 148px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px 54px 14px 14px;
+}
+
+.entry-card h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.entry-card p {
+  margin-bottom: 0;
+}
+
+.entry-card strong,
+.mural-note strong {
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.entry-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.entry-meta span,
+.note-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  background: #f2eadc;
+  color: var(--clay);
+  padding: 5px 8px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.entry-meta small {
+  color: var(--muted);
 }
 
 .notebook-card span {
@@ -388,6 +588,11 @@ p {
     var(--paper);
 }
 
+.mural-note {
+  display: grid;
+  gap: 8px;
+}
+
 @media (max-width: 1100px) {
   .workspace {
     grid-template-columns: 1fr;
@@ -403,6 +608,7 @@ p {
 
   .map-grid,
   .mission-layout,
+  .fieldbook-layout,
   .rules-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -438,6 +644,8 @@ p {
   .track-list,
   .map-grid,
   .mission-layout,
+  .fieldbook-layout,
+  .form-grid,
   .notebook-grid,
   .rules-grid,
   .mural-grid,
@@ -454,5 +662,10 @@ p {
   .primary-action {
     width: 100%;
     justify-content: center;
+  }
+
+  .form-heading,
+  .entry-panel-head {
+    flex-direction: column;
   }
 }

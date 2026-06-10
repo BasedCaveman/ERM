@@ -3,15 +3,20 @@
 import {
   BookOpen,
   Bot,
+  Camera,
   CheckCircle2,
   ClipboardList,
+  FileText,
   Hammer,
+  Lightbulb,
   Map,
   MessageSquareText,
   Mic2,
+  Plus,
   Radio,
   Route,
   Sparkles,
+  Trash2,
   Users,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -19,6 +24,25 @@ import { content } from '../lib/content';
 
 type TrackId = 'rural-kids' | 'urban-kids' | 'rural-youth' | 'urban-youth';
 type ViewId = 'map' | 'mission' | 'fieldbook' | 'radio' | 'mural';
+
+type FieldDraft = {
+  kind: string;
+  observation: string;
+  hypothesis: string;
+  evidence: string;
+  decision: string;
+  nextTest: string;
+  shared: boolean;
+};
+
+type FieldEntry = FieldDraft & {
+  id: string;
+  trackId: TrackId;
+  missionId: string;
+  missionTitle: string;
+  phase: number;
+  createdAt: string;
+};
 
 const trackNames: Record<TrackId, string> = {
   'rural-kids': 'Oficina da Vila',
@@ -61,16 +85,75 @@ const cognitiveLoop = [
   'Registrar evidencia e refletir em roda.',
 ];
 
+const evidenceKinds = [
+  { value: 'desenho', label: 'Desenho', icon: FileText },
+  { value: 'foto', label: 'Foto autorizada', icon: Camera },
+  { value: 'audio', label: 'Audio curto', icon: Mic2 },
+  { value: 'entrevista', label: 'Frase de entrevista', icon: MessageSquareText },
+  { value: 'hipotese', label: 'Hipotese', icon: Lightbulb },
+  { value: 'teste', label: 'Teste', icon: ClipboardList },
+];
+
+const emptyDraft: FieldDraft = {
+  kind: 'desenho',
+  observation: '',
+  hypothesis: '',
+  evidence: '',
+  decision: '',
+  nextTest: '',
+  shared: true,
+};
+
 export default function Home() {
   const [trackId, setTrackId] = useState<TrackId>('rural-kids');
   const [view, setView] = useState<ViewId>('map');
   const [activePhase, setActivePhase] = useState(1);
   const [done, setDone] = useState<Record<string, boolean>>({});
+  const [fieldDraft, setFieldDraft] = useState<FieldDraft>(emptyDraft);
+  const [fieldEntries, setFieldEntries] = useState<FieldEntry[]>([]);
 
   const track = useMemo(() => content.tracks.find((item) => item.id === trackId)!, [trackId]);
   const mission = track.missions.find((item) => item.phase === activePhase) ?? track.missions[0];
   const complete = track.missions.filter((item) => done[item.id]).length;
   const pct = Math.round((complete / track.missions.length) * 100);
+  const currentEntries = fieldEntries.filter((entry) => entry.trackId === trackId);
+  const missionEntries = currentEntries.filter((entry) => entry.missionId === mission.id);
+  const sharedEntries = fieldEntries.filter((entry) => entry.shared);
+
+  function updateFieldDraft(field: keyof FieldDraft, value: string | boolean) {
+    setFieldDraft((draft) => ({ ...draft, [field]: value }));
+  }
+
+  function addFieldEntry(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!fieldDraft.observation.trim() && !fieldDraft.evidence.trim()) {
+      return;
+    }
+
+    const entry: FieldEntry = {
+      ...fieldDraft,
+      id: `${mission.id}-${Date.now()}`,
+      trackId,
+      missionId: mission.id,
+      missionTitle: mission.title,
+      phase: mission.phase,
+      createdAt: new Date().toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    };
+
+    setFieldEntries((entries) => [entry, ...entries]);
+    setDone((state) => ({ ...state, [mission.id]: true }));
+    setFieldDraft(emptyDraft);
+  }
+
+  function removeFieldEntry(id: string) {
+    setFieldEntries((entries) => entries.filter((entry) => entry.id !== id));
+  }
 
   return (
     <main className="shell">
@@ -232,16 +315,139 @@ export default function Home() {
                   Cada registro deve separar observacao, hipotese, evidencia, decisao e proximo teste.
                 </p>
               </div>
-              <div className="notebook-grid">
-                {['Desenho', 'Foto autorizada', 'Audio curto', 'Frase de entrevista', 'Hipotese', 'Teste'].map(
-                  (item) => (
-                    <article className="notebook-card" key={item}>
-                      <span />
-                      <h3>{item}</h3>
-                      <p>Espaco para transformar mundo real em material de reflexao do grupo.</p>
-                    </article>
-                  ),
-                )}
+
+              <div className="fieldbook-layout">
+                <form className="field-form" onSubmit={addFieldEntry}>
+                  <div className="form-heading">
+                    <div>
+                      <p className="eyebrow">Registro da missao atual</p>
+                      <h3>
+                        {String(mission.phase).padStart(2, '0')}. {mission.title}
+                      </h3>
+                    </div>
+                    <button className="primary-action compact" type="submit">
+                      <Plus size={18} />
+                      Registrar
+                    </button>
+                  </div>
+
+                  <label>
+                    Tipo de evidencia
+                    <select
+                      value={fieldDraft.kind}
+                      onChange={(event) => updateFieldDraft('kind', event.target.value)}
+                    >
+                      {evidenceKinds.map((kind) => (
+                        <option key={kind.value} value={kind.value}>
+                          {kind.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <div className="form-grid">
+                    <label>
+                      Observacao
+                      <textarea
+                        value={fieldDraft.observation}
+                        onChange={(event) => updateFieldDraft('observation', event.target.value)}
+                        placeholder="O que vimos, ouvimos ou percebemos?"
+                      />
+                    </label>
+                    <label>
+                      Hipotese
+                      <textarea
+                        value={fieldDraft.hypothesis}
+                        onChange={(event) => updateFieldDraft('hypothesis', event.target.value)}
+                        placeholder="O que achamos que pode estar acontecendo?"
+                      />
+                    </label>
+                    <label>
+                      Evidencia
+                      <textarea
+                        value={fieldDraft.evidence}
+                        onChange={(event) => updateFieldDraft('evidence', event.target.value)}
+                        placeholder="Qual desenho, frase, foto autorizada ou teste sustenta isso?"
+                      />
+                    </label>
+                    <label>
+                      Decisao do time
+                      <textarea
+                        value={fieldDraft.decision}
+                        onChange={(event) => updateFieldDraft('decision', event.target.value)}
+                        placeholder="O que o grupo decidiu fazer agora?"
+                      />
+                    </label>
+                  </div>
+
+                  <label>
+                    Proximo teste pequeno
+                    <input
+                      value={fieldDraft.nextTest}
+                      onChange={(event) => updateFieldDraft('nextTest', event.target.value)}
+                      placeholder="Ex.: conversar com 2 pessoas da feira"
+                    />
+                  </label>
+
+                  <label className="check-row">
+                    <input
+                      checked={fieldDraft.shared}
+                      type="checkbox"
+                      onChange={(event) => updateFieldDraft('shared', event.target.checked)}
+                    />
+                    Enviar este registro para o mural coletivo
+                  </label>
+                </form>
+
+                <aside className="entry-panel">
+                  <div className="entry-panel-head">
+                    <div>
+                      <p className="eyebrow">Registros desta trilha</p>
+                      <h3>{currentEntries.length} evidencias</h3>
+                    </div>
+                    <span>{missionEntries.length} nesta missao</span>
+                  </div>
+
+                  <div className="entry-list">
+                    {currentEntries.length === 0 ? (
+                      <article className="empty-state">
+                        <BookOpen size={24} />
+                        <p>O primeiro registro do grupo vai aparecer aqui.</p>
+                      </article>
+                    ) : (
+                      currentEntries.map((entry) => {
+                        const kind = evidenceKinds.find((item) => item.value === entry.kind);
+                        const Icon = kind?.icon ?? FileText;
+
+                        return (
+                          <article className="entry-card" key={entry.id}>
+                            <div className="entry-meta">
+                              <span>
+                                <Icon size={16} />
+                                {kind?.label ?? entry.kind}
+                              </span>
+                              <small>
+                                Missao {String(entry.phase).padStart(2, '0')} · {entry.createdAt}
+                              </small>
+                            </div>
+                            <h4>{entry.missionTitle}</h4>
+                            <p>{entry.observation || entry.evidence}</p>
+                            {entry.nextTest && <strong>Proximo teste: {entry.nextTest}</strong>}
+                            <button
+                              className="icon-action"
+                              type="button"
+                              onClick={() => removeFieldEntry(entry.id)}
+                              title="Remover registro"
+                              aria-label="Remover registro"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </article>
+                        );
+                      })
+                    )}
+                  </div>
+                </aside>
               </div>
             </section>
           )}
@@ -282,17 +488,28 @@ export default function Home() {
                 <h2>Descobertas viram inteligencia da turma</h2>
               </div>
               <div className="mural-grid">
-                {[
-                  ['Escuta', 'Uma frase de alguem da comunidade que mudou a ideia inicial.'],
-                  ['Contradicao', 'Algo que parecia simples, mas mostrou outro lado do sistema.'],
-                  ['Prototipo', 'Um teste pequeno feito com papel, conversa, Scratch ou encenacao.'],
-                  ['Melhoria', 'Uma decisao tomada depois de ouvir critica real.'],
-                ].map(([title, text]) => (
-                  <article className="mural-note" key={title}>
-                    <h3>{title}</h3>
-                    <p>{text}</p>
-                  </article>
-                ))}
+                {sharedEntries.length === 0
+                  ? [
+                      ['Escuta', 'Uma frase de alguem da comunidade que mudou a ideia inicial.'],
+                      ['Contradicao', 'Algo que parecia simples, mas mostrou outro lado do sistema.'],
+                      ['Prototipo', 'Um teste pequeno feito com papel, conversa, Scratch ou encenacao.'],
+                      ['Melhoria', 'Uma decisao tomada depois de ouvir critica real.'],
+                    ].map(([title, text]) => (
+                      <article className="mural-note" key={title}>
+                        <h3>{title}</h3>
+                        <p>{text}</p>
+                      </article>
+                    ))
+                  : sharedEntries.map((entry) => (
+                      <article className="mural-note" key={entry.id}>
+                        <span className="note-kicker">
+                          {trackNames[entry.trackId]} · Missao {String(entry.phase).padStart(2, '0')}
+                        </span>
+                        <h3>{entry.missionTitle}</h3>
+                        <p>{entry.observation || entry.evidence}</p>
+                        {entry.decision && <strong>Decisao: {entry.decision}</strong>}
+                      </article>
+                    ))}
               </div>
             </section>
           )}
