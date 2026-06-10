@@ -251,7 +251,9 @@ p {
 .mission-view,
 .fieldbook-view,
 .radio-view,
-.mural-view {
+.mural-view,
+.gateway-view,
+.facilitator-view {
   padding: 24px;
 }
 
@@ -624,6 +626,222 @@ p {
   gap: 8px;
 }
 
+.narrative-line {
+  border-left: 4px solid var(--gold);
+  margin-top: 12px;
+  padding: 10px 0 10px 12px;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.gateway-grid,
+.facilitator-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gateway-card,
+.interest-panel,
+.facilitator-card,
+.roadblock-form,
+.roadblock-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.gateway-card {
+  display: grid;
+  gap: 10px;
+  min-height: 286px;
+  padding: 18px;
+}
+
+.gateway-card.selected {
+  border-color: var(--forest);
+  background:
+    linear-gradient(180deg, rgba(37, 111, 90, 0.12), transparent),
+    var(--paper);
+}
+
+.gateway-card small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.gateway-card .primary-action {
+  align-self: end;
+}
+
+.gateway-artifact {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 8px;
+  background: #fff0df;
+  color: var(--clay);
+  padding: 6px 9px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.interest-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 18px;
+}
+
+.interest-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.interest-chip {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f2eadc;
+  color: var(--ink);
+  padding: 0 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.interest-chip.selected {
+  border-color: var(--forest);
+  background: #e7f2e9;
+  color: var(--forest);
+}
+
+.story-preview {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border-radius: 8px;
+  background: #edf6f3;
+  padding: 14px;
+}
+
+.story-preview svg {
+  flex: 0 0 auto;
+  color: var(--forest);
+}
+
+.story-preview p {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.facilitator-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.facilitator-card,
+.roadblock-form,
+.roadblock-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.facilitator-card.strong {
+  background: var(--paper-strong);
+}
+
+.split-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.split-heading svg {
+  color: var(--forest);
+}
+
+.protocol-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.protocol-list span {
+  border-radius: 8px;
+  background: #f2eadc;
+  color: var(--ink);
+  padding: 7px 9px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.roadblock-form {
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  margin-top: 14px;
+}
+
+.roadblock-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.roadblock-form textarea {
+  min-height: 88px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  padding: 12px;
+  resize: vertical;
+}
+
+.roadblock-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.roadblock-card {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.roadblock-card div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.roadblock-card span {
+  border-radius: 8px;
+  background: #fff0df;
+  color: var(--clay);
+  padding: 5px 8px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.roadblock-card.acolhido span {
+  background: #e7f2e9;
+  color: var(--forest);
+}
+
+.roadblock-card small {
+  color: var(--muted);
+}
+
+.roadblock-card p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
 @media (max-width: 1100px) {
   .workspace {
     grid-template-columns: 1fr;
@@ -638,8 +856,10 @@ p {
   }
 
   .map-grid,
+  .gateway-grid,
   .mission-layout,
   .fieldbook-layout,
+  .facilitator-grid,
   .rules-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -660,7 +880,9 @@ p {
   .mission-view,
   .fieldbook-view,
   .radio-view,
-  .mural-view {
+  .mural-view,
+  .gateway-view,
+  .facilitator-view {
     padding: 16px;
   }
 
@@ -674,8 +896,11 @@ p {
 
   .track-list,
   .map-grid,
+  .gateway-grid,
   .mission-layout,
   .fieldbook-layout,
+  .facilitator-grid,
+  .roadblock-form,
   .form-grid,
   .notebook-grid,
   .rules-grid,
@@ -696,7 +921,20 @@ p {
   }
 
   .form-heading,
-  .entry-panel-head {
+  .entry-panel-head,
+  .roadblock-card {
     flex-direction: column;
+  }
+
+  .roadblock-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .interest-chip,
+  .roadblock-form .primary-action {
+    width: 100%;
+    justify-content: center;
   }
 }

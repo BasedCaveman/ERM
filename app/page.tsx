@@ -6,6 +6,7 @@ import {
   Camera,
   CheckCircle2,
   ClipboardList,
+  Compass,
   FileText,
   Hammer,
   Lightbulb,
@@ -19,14 +20,16 @@ import {
   Save,
   Sparkles,
   Trash2,
+  UserRoundCheck,
   Users,
+  WandSparkles,
 } from 'lucide-react';
 import { animate, stagger } from 'animejs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { content } from '../lib/content';
 
 type TrackId = 'rural-kids' | 'urban-kids' | 'rural-youth' | 'urban-youth';
-type ViewId = 'map' | 'mission' | 'fieldbook' | 'radio' | 'mural';
+type ViewId = 'gateway' | 'map' | 'mission' | 'fieldbook' | 'radio' | 'mural' | 'facilitator';
 
 type FieldDraft = {
   kind: string;
@@ -51,7 +54,16 @@ type SavedWorkspace = {
   activePhase?: number;
   done?: Record<string, boolean>;
   fieldEntries?: FieldEntry[];
+  interests?: string[];
+  roadblocks?: Roadblock[];
   trackId?: TrackId;
+};
+
+type Roadblock = {
+  id: string;
+  note: string;
+  status: 'aberto' | 'acolhido';
+  createdAt: string;
 };
 
 const STORAGE_KEY = 'erm:v2:workspace';
@@ -74,6 +86,29 @@ const trackIntros: Record<TrackId, string> = {
     'Jovens trabalham mobilidade, consumo, cultura, estudos, servicos digitais locais e vida de bairro.',
 };
 
+const trackWorlds: Record<TrackId, { artifact: string; invitation: string; palette: string }> = {
+  'rural-kids': {
+    artifact: 'Mapa de sementes',
+    invitation: 'Entrar pela feira, pela horta e pelos pequenos misterios do campo.',
+    palette: 'Campo, feira, chuva, animais e familia',
+  },
+  'urban-kids': {
+    artifact: 'Mapa do bairro',
+    invitation: 'Investigar escola, praca, cantina e combinados que melhoram a vida perto de casa.',
+    palette: 'Bairro, escola, praca, transporte e vizinhanca',
+  },
+  'rural-youth': {
+    artifact: 'Mapa das colinas',
+    invitation: 'Conectar producao local, turismo, clima, logistica e redes comunitarias.',
+    palette: 'Producao, cachoeira, ferramentas, clima e comercio local',
+  },
+  'urban-youth': {
+    artifact: 'Mapa da cidade infinita',
+    invitation: 'Explorar mobilidade, estudos, cultura, consumo e servicos digitais locais.',
+    palette: 'Mobilidade, cultura, estudos, consumo e tecnologia',
+  },
+};
+
 const regions = [
   { title: 'Oficina', icon: Hammer, text: 'Prototipos pequenos, materiais simples e testes rapidos.' },
   { title: 'Caderno', icon: BookOpen, text: 'Notas, desenhos, fotos autorizadas, audios e hipoteses.' },
@@ -82,12 +117,29 @@ const regions = [
 ];
 
 const views = [
+  { id: 'gateway', label: 'Entrada', icon: Compass },
   { id: 'map', label: 'Mapa', icon: Map },
   { id: 'mission', label: 'Missao', icon: Route },
   { id: 'fieldbook', label: 'Caderno', icon: BookOpen },
   { id: 'radio', label: 'Radio', icon: Mic2 },
   { id: 'mural', label: 'Mural', icon: MessageSquareText },
+  { id: 'facilitator', label: 'Facilitador', icon: UserRoundCheck },
 ] satisfies Array<{ id: ViewId; label: string; icon: typeof Map }>;
+
+const interestOptions = [
+  'Animais',
+  'Horta',
+  'Jogos',
+  'Desenho',
+  'Tecnologia',
+  'Musica',
+  'Feira',
+  'Natureza',
+  'Comida',
+  'Esporte',
+  'Historias',
+  'Cuidar de pessoas',
+];
 
 const cognitiveLoop = [
   'Predizer o que a turma acha que vai acontecer.',
@@ -122,11 +174,14 @@ function prefersReducedMotion() {
 
 export default function Home() {
   const [trackId, setTrackId] = useState<TrackId>('rural-kids');
-  const [view, setView] = useState<ViewId>('map');
+  const [view, setView] = useState<ViewId>('gateway');
   const [activePhase, setActivePhase] = useState(1);
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [fieldDraft, setFieldDraft] = useState<FieldDraft>(emptyDraft);
   const [fieldEntries, setFieldEntries] = useState<FieldEntry[]>([]);
+  const [interests, setInterests] = useState<string[]>([]);
+  const [roadblockDraft, setRoadblockDraft] = useState('');
+  const [roadblocks, setRoadblocks] = useState<Roadblock[]>([]);
   const [hasHydrated, setHasHydrated] = useState(false);
   const [motionSignal, setMotionSignal] = useState(0);
   const mainstageRef = useRef<HTMLElement>(null);
@@ -139,6 +194,9 @@ export default function Home() {
   const currentEntries = fieldEntries.filter((entry) => entry.trackId === trackId);
   const missionEntries = currentEntries.filter((entry) => entry.missionId === mission.id);
   const sharedEntries = fieldEntries.filter((entry) => entry.shared);
+  const interestLine = interests.length ? interests.join(', ') : 'curiosidades que a turma escolher';
+  const narrativeHook = `Hoje a ${trackNames[trackId]} comeca pelos interesses da turma: ${interestLine}. A missao ${mission.title.toLowerCase()} vira uma investigacao sobre ${mission.goal}.`;
+  const aiQuickResponse = `Comece perguntando: "Onde ${interestLine} aparece no nosso territorio?" Depois peca uma evidencia pequena antes de qualquer solucao. Se a turma travar, ofereca duas opcoes de proximo passo, mas deixe o grupo escolher.`;
 
   useEffect(() => {
     try {
@@ -162,6 +220,14 @@ export default function Home() {
         if (Array.isArray(saved.fieldEntries)) {
           setFieldEntries(saved.fieldEntries);
         }
+
+        if (Array.isArray(saved.interests)) {
+          setInterests(saved.interests.filter((item) => typeof item === 'string'));
+        }
+
+        if (Array.isArray(saved.roadblocks)) {
+          setRoadblocks(saved.roadblocks);
+        }
       }
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
@@ -181,10 +247,12 @@ export default function Home() {
         activePhase,
         done,
         fieldEntries,
+        interests,
+        roadblocks,
         trackId,
       } satisfies SavedWorkspace),
     );
-  }, [activePhase, done, fieldEntries, hasHydrated, trackId]);
+  }, [activePhase, done, fieldEntries, hasHydrated, interests, roadblocks, trackId]);
 
   useEffect(() => {
     if (!hasHydrated || prefersReducedMotion()) {
@@ -281,12 +349,61 @@ export default function Home() {
     setFieldEntries((entries) => entries.filter((entry) => entry.id !== id));
   }
 
+  function toggleInterest(interest: string) {
+    setInterests((current) =>
+      current.includes(interest) ? current.filter((item) => item !== interest) : [...current, interest],
+    );
+    setMotionSignal((signal) => signal + 1);
+  }
+
+  function enterTrack(id: TrackId) {
+    setTrackId(id);
+    setActivePhase(1);
+    setView('map');
+  }
+
+  function addRoadblock(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!roadblockDraft.trim()) {
+      return;
+    }
+
+    setRoadblocks((items) => [
+      {
+        id: `roadblock-${Date.now()}`,
+        note: roadblockDraft.trim(),
+        status: 'aberto',
+        createdAt: new Date().toLocaleString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      },
+      ...items,
+    ]);
+    setRoadblockDraft('');
+  }
+
+  function toggleRoadblock(id: string) {
+    setRoadblocks((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, status: item.status === 'aberto' ? 'acolhido' : 'aberto' } : item,
+      ),
+    );
+  }
+
   function resetWorkspace() {
     window.localStorage.removeItem(STORAGE_KEY);
     setDone({});
     setFieldDraft(emptyDraft);
     setFieldEntries([]);
+    setInterests([]);
+    setRoadblockDraft('');
+    setRoadblocks([]);
     setActivePhase(1);
+    setView('gateway');
   }
 
   return (
@@ -312,6 +429,7 @@ export default function Home() {
                   onClick={() => {
                     setTrackId(id);
                     setActivePhase(1);
+                    setView('gateway');
                   }}
                 >
                   <span>{trackNames[id]}</span>
@@ -369,6 +487,7 @@ export default function Home() {
                 <p className="eyebrow">{trackNames[trackId]}</p>
                 <h2>{track.pt}</h2>
                 <p>{trackIntros[trackId]}</p>
+                <p className="narrative-line">{narrativeHook}</p>
               </div>
 
               <div className="map-grid">
@@ -412,6 +531,7 @@ export default function Home() {
                   <p className="eyebrow">Missao {String(mission.phase).padStart(2, '0')}</p>
                   <h2>{mission.title}</h2>
                   <p>{mission.storyPt}</p>
+                  <p className="narrative-line">{narrativeHook}</p>
                 </div>
                 <button
                   className="primary-action"
@@ -447,6 +567,57 @@ export default function Home() {
                     <li key={step}>{step}</li>
                   ))}
                 </ol>
+              </div>
+            </section>
+          )}
+
+          {view === 'gateway' && (
+            <section className="gateway-view" data-motion-surface>
+              <div className="section-head">
+                <p className="eyebrow">Entrada do ecossistema</p>
+                <h2>Escolha uma porta de aventura</h2>
+                <p>
+                  A trilha nasce do territorio e dos interesses que as criancas trazem. Primeiro escolha
+                  a porta, depois marque os temas que podem virar pistas narrativas.
+                </p>
+              </div>
+
+              <div className="gateway-grid">
+                {(Object.keys(trackNames) as TrackId[]).map((id) => (
+                  <article className={`gateway-card ${trackId === id ? 'selected' : ''}`} data-motion-item key={id}>
+                    <span className="gateway-artifact">{trackWorlds[id].artifact}</span>
+                    <h3>{trackNames[id]}</h3>
+                    <p>{trackWorlds[id].invitation}</p>
+                    <small>{trackWorlds[id].palette}</small>
+                    <button className="primary-action compact" type="button" onClick={() => enterTrack(id)}>
+                      <Compass size={18} />
+                      Entrar
+                    </button>
+                  </article>
+                ))}
+              </div>
+
+              <div className="interest-panel" data-motion-item>
+                <div>
+                  <p className="eyebrow">Interesses da turma</p>
+                  <h3>O que pode puxar a historia?</h3>
+                </div>
+                <div className="interest-grid">
+                  {interestOptions.map((interest) => (
+                    <button
+                      className={`interest-chip ${interests.includes(interest) ? 'selected' : ''}`}
+                      key={interest}
+                      type="button"
+                      onClick={() => toggleInterest(interest)}
+                    >
+                      {interest}
+                    </button>
+                  ))}
+                </div>
+                <div className="story-preview">
+                  <WandSparkles size={20} />
+                  <p>{narrativeHook}</p>
+                </div>
               </div>
             </section>
           )}
@@ -622,6 +793,96 @@ export default function Home() {
                     <span>{rule}</span>
                   </div>
                 ))}
+              </div>
+            </section>
+          )}
+
+          {view === 'facilitator' && (
+            <section className="facilitator-view" data-motion-surface>
+              <div className="section-head">
+                <p className="eyebrow">Area do facilitador</p>
+                <h2>IA rapida, humano profundo</h2>
+                <p>
+                  O agente ajuda a organizar respostas curtas e construir ganchos narrativos. O
+                  facilitador humano entra quando aparecem bloqueios, conflitos, inseguranca ou
+                  reflexoes que pedem presenca.
+                </p>
+              </div>
+
+              <div className="facilitator-grid">
+                <article className="facilitator-card" data-motion-item>
+                  <div className="split-heading">
+                    <Bot size={22} />
+                    <div>
+                      <p className="eyebrow">Agente IA</p>
+                      <h3>Resposta rapida</h3>
+                    </div>
+                  </div>
+                  <p>{aiQuickResponse}</p>
+                  <div className="protocol-list">
+                    <span>Organizar evidencias</span>
+                    <span>Sugerir pergunta unica</span>
+                    <span>Gerar gancho narrativo</span>
+                    <span>Propor proximo teste pequeno</span>
+                  </div>
+                </article>
+
+                <article className="facilitator-card strong" data-motion-item>
+                  <div className="split-heading">
+                    <UserRoundCheck size={22} />
+                    <div>
+                      <p className="eyebrow">Humano</p>
+                      <h3>Reflexao profunda</h3>
+                    </div>
+                  </div>
+                  <p>
+                    Intervir quando a turma precisa de acolhimento, mediacao, leitura emocional,
+                    negociacao de papeis ou coragem para testar algo no mundo real.
+                  </p>
+                  <div className="protocol-list">
+                    <span>Escutar sem apressar</span>
+                    <span>Nomear tensoes do grupo</span>
+                    <span>Devolver autoria</span>
+                    <span>Destravar roadblocks humanos</span>
+                  </div>
+                </article>
+              </div>
+
+              <form className="roadblock-form" data-motion-item onSubmit={addRoadblock}>
+                <label>
+                  Roadblock para acompanhamento humano
+                  <textarea
+                    value={roadblockDraft}
+                    onChange={(event) => setRoadblockDraft(event.target.value)}
+                    placeholder="Ex.: o grupo nao consegue escolher uma ideia sem excluir alguem"
+                  />
+                </label>
+                <button className="primary-action compact" type="submit">
+                  <Plus size={18} />
+                  Registrar roadblock
+                </button>
+              </form>
+
+              <div className="roadblock-list">
+                {roadblocks.length === 0 ? (
+                  <article className="empty-state" data-motion-item>
+                    <UserRoundCheck size={24} />
+                    <p>Os bloqueios humanos que precisarem de acompanhamento aparecem aqui.</p>
+                  </article>
+                ) : (
+                  roadblocks.map((item) => (
+                    <article className={`roadblock-card ${item.status}`} data-motion-item key={item.id}>
+                      <div>
+                        <span>{item.status === 'aberto' ? 'Aberto' : 'Acolhido'}</span>
+                        <small>{item.createdAt}</small>
+                      </div>
+                      <p>{item.note}</p>
+                      <button className="text-action" type="button" onClick={() => toggleRoadblock(item.id)}>
+                        {item.status === 'aberto' ? 'Marcar acolhido' : 'Reabrir'}
+                      </button>
+                    </article>
+                  ))
+                )}
               </div>
             </section>
           )}
