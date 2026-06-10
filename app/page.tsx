@@ -21,7 +21,8 @@ import {
   Trash2,
   Users,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { animate, stagger } from 'animejs';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { content } from '../lib/content';
 
 type TrackId = 'rural-kids' | 'urban-kids' | 'rural-youth' | 'urban-youth';
@@ -115,6 +116,10 @@ const emptyDraft: FieldDraft = {
   shared: true,
 };
 
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 export default function Home() {
   const [trackId, setTrackId] = useState<TrackId>('rural-kids');
   const [view, setView] = useState<ViewId>('map');
@@ -123,6 +128,9 @@ export default function Home() {
   const [fieldDraft, setFieldDraft] = useState<FieldDraft>(emptyDraft);
   const [fieldEntries, setFieldEntries] = useState<FieldEntry[]>([]);
   const [hasHydrated, setHasHydrated] = useState(false);
+  const [motionSignal, setMotionSignal] = useState(0);
+  const mainstageRef = useRef<HTMLElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
 
   const track = useMemo(() => content.tracks.find((item) => item.id === trackId)!, [trackId]);
   const mission = track.missions.find((item) => item.phase === activePhase) ?? track.missions[0];
@@ -178,6 +186,65 @@ export default function Home() {
     );
   }, [activePhase, done, fieldEntries, hasHydrated, trackId]);
 
+  useEffect(() => {
+    if (!hasHydrated || prefersReducedMotion()) {
+      return;
+    }
+
+    const root = mainstageRef.current;
+
+    if (!root) {
+      return;
+    }
+
+    const surface = root.querySelector('[data-motion-surface]');
+    const items = root.querySelectorAll('[data-motion-item]');
+    const surfaceAnimation = surface
+      ? animate(surface, {
+          duration: 280,
+          ease: 'out(3)',
+          opacity: [0, 1],
+          y: [8, 0],
+        })
+      : null;
+    const itemAnimation = items.length
+      ? animate(items, {
+          delay: stagger(28),
+          duration: 260,
+          ease: 'out(2)',
+          opacity: [0, 1],
+          y: [10, 0],
+        })
+      : null;
+
+    return () => {
+      surfaceAnimation?.revert();
+      itemAnimation?.revert();
+    };
+  }, [activePhase, hasHydrated, motionSignal, trackId, view]);
+
+  useEffect(() => {
+    if (!hasHydrated || prefersReducedMotion() || complete === 0) {
+      return;
+    }
+
+    const progress = progressRef.current;
+
+    if (!progress) {
+      return;
+    }
+
+    const animation = animate(progress, {
+      duration: 360,
+      ease: 'out(3)',
+      scaleX: [0.985, 1],
+    });
+
+    return () => {
+      animation.revert();
+    };
+  }, [complete, hasHydrated]);
+
   function updateFieldDraft(field: keyof FieldDraft, value: string | boolean) {
     setFieldDraft((draft) => ({ ...draft, [field]: value }));
   }
@@ -207,6 +274,7 @@ export default function Home() {
     setFieldEntries((entries) => [entry, ...entries]);
     setDone((state) => ({ ...state, [mission.id]: true }));
     setFieldDraft(emptyDraft);
+    setMotionSignal((signal) => signal + 1);
   }
 
   function removeFieldEntry(id: string) {
@@ -260,7 +328,7 @@ export default function Home() {
               <span>{complete}/14 missoes concluidas</span>
               <strong>{pct}%</strong>
             </div>
-            <div className="progress" aria-label={`Progresso ${pct}%`}>
+            <div className="progress" ref={progressRef} aria-label={`Progresso ${pct}%`}>
               <span style={{ width: `${pct}%` }} />
             </div>
             <div className="storage-panel">
@@ -276,7 +344,7 @@ export default function Home() {
           </div>
         </aside>
 
-        <section className="mainstage">
+        <section className="mainstage" ref={mainstageRef}>
           <nav className="view-tabs" aria-label="Areas do ecossistema">
             {views.map((item) => {
               const Icon = item.icon;
@@ -296,7 +364,7 @@ export default function Home() {
           </nav>
 
           {view === 'map' && (
-            <section className="map-view">
+            <section className="map-view" data-motion-surface>
               <div className="section-head">
                 <p className="eyebrow">{trackNames[trackId]}</p>
                 <h2>{track.pt}</h2>
@@ -307,7 +375,7 @@ export default function Home() {
                 {regions.map((region) => {
                   const Icon = region.icon;
                   return (
-                    <article className="region-card" key={region.title}>
+                    <article className="region-card" data-motion-item key={region.title}>
                       <Icon size={24} />
                       <h3>{region.title}</h3>
                       <p>{region.text}</p>
@@ -322,6 +390,7 @@ export default function Home() {
                     className={`phase-node ${item.phase === activePhase ? 'current' : ''} ${
                       done[item.id] ? 'done' : ''
                     }`}
+                    data-motion-item
                     key={item.id}
                     onClick={() => {
                       setActivePhase(item.phase);
@@ -337,7 +406,7 @@ export default function Home() {
           )}
 
           {view === 'mission' && (
-            <section className="mission-view">
+            <section className="mission-view" data-motion-surface>
               <div className="mission-hero">
                 <div>
                   <p className="eyebrow">Missao {String(mission.phase).padStart(2, '0')}</p>
@@ -354,24 +423,24 @@ export default function Home() {
               </div>
 
               <div className="mission-layout">
-                <article className="task-card">
+                <article className="task-card" data-motion-item>
                   <ClipboardList size={22} />
                   <h3>Na tela</h3>
                   <p>{mission.screenPt}</p>
                 </article>
-                <article className="task-card strong">
+                <article className="task-card strong" data-motion-item>
                   <Route size={22} />
                   <h3>Fora da tela</h3>
                   <p>{mission.offlinePt}</p>
                 </article>
-                <article className="task-card">
+                <article className="task-card" data-motion-item>
                   <Bot size={22} />
                   <h3>IA facilitadora</h3>
                   <p>{mission.aiPrepPt}</p>
                 </article>
               </div>
 
-              <div className="loop-panel">
+              <div className="loop-panel" data-motion-item>
                 <h3>Cena cognitiva</h3>
                 <ol>
                   {cognitiveLoop.map((step) => (
@@ -383,7 +452,7 @@ export default function Home() {
           )}
 
           {view === 'fieldbook' && (
-            <section className="fieldbook-view">
+            <section className="fieldbook-view" data-motion-surface>
               <div className="section-head">
                 <p className="eyebrow">Caderno de campo</p>
                 <h2>Memoria viva da jornada</h2>
@@ -393,7 +462,7 @@ export default function Home() {
               </div>
 
               <div className="fieldbook-layout">
-                <form className="field-form" onSubmit={addFieldEntry}>
+                <form className="field-form" data-motion-item onSubmit={addFieldEntry}>
                   <div className="form-heading">
                     <div>
                       <p className="eyebrow">Registro da missao atual</p>
@@ -475,7 +544,7 @@ export default function Home() {
                   </label>
                 </form>
 
-                <aside className="entry-panel">
+                <aside className="entry-panel" data-motion-item>
                   <div className="entry-panel-head">
                     <div>
                       <p className="eyebrow">Registros desta trilha</p>
@@ -486,7 +555,7 @@ export default function Home() {
 
                   <div className="entry-list">
                     {currentEntries.length === 0 ? (
-                      <article className="empty-state">
+                      <article className="empty-state" data-motion-item>
                         <BookOpen size={24} />
                         <p>O primeiro registro do grupo vai aparecer aqui.</p>
                       </article>
@@ -496,7 +565,7 @@ export default function Home() {
                         const Icon = kind?.icon ?? FileText;
 
                         return (
-                          <article className="entry-card" key={entry.id}>
+                          <article className="entry-card" data-motion-item key={entry.id}>
                             <div className="entry-meta">
                               <span>
                                 <Icon size={16} />
@@ -529,12 +598,12 @@ export default function Home() {
           )}
 
           {view === 'radio' && (
-            <section className="radio-view">
+            <section className="radio-view" data-motion-surface>
               <div className="section-head">
                 <p className="eyebrow">Radio comunitaria</p>
                 <h2>O facilitador pergunta antes de explicar</h2>
               </div>
-              <div className="broadcast">
+              <div className="broadcast" data-motion-item>
                 <Radio size={32} />
                 <p>
                   "Que evidencia voces ja tem? O que ainda e so palpite? Qual pessoa real poderia
@@ -548,7 +617,7 @@ export default function Home() {
                   'Autoria sempre do time.',
                   'Pausa fora da tela quando a missao pedir territorio.',
                 ].map((rule) => (
-                  <div className="rule" key={rule}>
+                  <div className="rule" data-motion-item key={rule}>
                     <Sparkles size={18} />
                     <span>{rule}</span>
                   </div>
@@ -558,7 +627,7 @@ export default function Home() {
           )}
 
           {view === 'mural' && (
-            <section className="mural-view">
+            <section className="mural-view" data-motion-surface>
               <div className="section-head">
                 <p className="eyebrow">Mural coletivo</p>
                 <h2>Descobertas viram inteligencia da turma</h2>
@@ -571,13 +640,13 @@ export default function Home() {
                       ['Prototipo', 'Um teste pequeno feito com papel, conversa, Scratch ou encenacao.'],
                       ['Melhoria', 'Uma decisao tomada depois de ouvir critica real.'],
                     ].map(([title, text]) => (
-                      <article className="mural-note" key={title}>
+                      <article className="mural-note" data-motion-item key={title}>
                         <h3>{title}</h3>
                         <p>{text}</p>
                       </article>
                     ))
                   : sharedEntries.map((entry) => (
-                      <article className="mural-note" key={entry.id}>
+                      <article className="mural-note" data-motion-item key={entry.id}>
                         <span className="note-kicker">
                           {trackNames[entry.trackId]} · Missao {String(entry.phase).padStart(2, '0')}
                         </span>
