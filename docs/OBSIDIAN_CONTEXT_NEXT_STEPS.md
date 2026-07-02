@@ -84,14 +84,14 @@ Enquanto monetizacao nao estiver decidida, o caminho mais seguro e construir pro
 1. Transformar o onboarding atual em um "portal de trilhas" mais completo, com interesses, tom narrativo e convite para primeira missao.
 2. Refinar o motor simples de narrativa ja iniciado no PWA: `trilha + idade + contexto + interesses + fase atual -> provocacao, exemplo, desafio, evidencia esperada`.
 3. Expandir o caderno de campo para aceitar evidencias por tipo, reflexoes e decisao do grupo.
-4. Evoluir o painel do facilitador com fila de roadblocks, sugestao rapida de IA, status humano e historico por grupo.
+4. Evoluir o painel do facilitador com fila de roadblocks, sugestao rapida de IA, resumo de piloto, status humano e historico por grupo.
 5. Definir uma missao-amostra publicavel sem copiar texto literal dos manuais.
 
 ### Em seguida
 
 1. Modelar dados persistentes para turma, grupo, crianca, facilitador, trilha, fase, evidencia, mural e roadblock.
 2. Preparar modo piloto para uma turma real, com exportacao simples de relatorio para escola/educador.
-3. Criar uma biblioteca visual inicial: mapas, artefatos, cartas de ajuda, selos cooperativos e estados vazios.
+3. Criar uma biblioteca visual inicial: mapas, artefatos, cartas maker, selos cooperativos e estados vazios.
 4. Desenhar prompts sistemicos da IA facilitadora com limites de seguranca e escalonamento humano.
 5. Criar FAQ para escola, educador, familia e gestor publico.
 

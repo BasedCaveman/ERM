@@ -451,6 +451,48 @@ p {
   margin-bottom: 0;
 }
 
+.maker-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.92);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.maker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.maker-card {
+  display: grid;
+  gap: 8px;
+  min-height: 154px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.maker-card span {
+  color: var(--water);
+  font-weight: 900;
+}
+
+.maker-card p {
+  margin-bottom: 0;
+}
+
+.maker-card small {
+  align-self: end;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
 .notebook-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -851,6 +893,52 @@ p {
   padding: 18px;
 }
 
+.pilot-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.92);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.pilot-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pilot-grid article {
+  display: grid;
+  gap: 4px;
+  min-height: 92px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.pilot-grid strong {
+  color: var(--forest);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.pilot-grid span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.pilot-panel p {
+  margin-bottom: 0;
+  color: var(--ink);
+  font-weight: 800;
+}
+
 .split-heading {
   display: flex;
   align-items: flex-start;
@@ -966,7 +1054,9 @@ p {
   .phase-map,
   .narrative-grid,
   .loop-panel ol,
-  .learning-grid {
+  .learning-grid,
+  .maker-grid,
+  .pilot-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -1010,7 +1100,9 @@ p {
   .narrative-grid,
   .story-brief,
   .loop-panel ol,
-  .learning-grid {
+  .learning-grid,
+  .maker-grid,
+  .pilot-grid {
     grid-template-columns: 1fr;
   }
 

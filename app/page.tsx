@@ -248,6 +248,29 @@ const aiLiteracyProtocol = [
   'Registrar o que foi decisao humana.',
 ];
 
+const makerCards = [
+  {
+    title: 'Papel primeiro',
+    text: 'Desenhe a solucao em uma folha antes de abrir qualquer ferramenta digital.',
+    tool: 'Papel, caneta, fita, objetos simples',
+  },
+  {
+    title: 'Scratch ou encenacao',
+    text: 'Transforme a ideia em uma cena, botao, personagem, fluxo ou teatro curto.',
+    tool: 'Scratch, celular do facilitador ou corpo em movimento',
+  },
+  {
+    title: 'IA como dupla',
+    text: 'Peca variacoes, nomes, perguntas de teste ou uma explicacao mais clara.',
+    tool: 'Prompt curto com evidencia e limite',
+  },
+  {
+    title: 'Teste com alguem real',
+    text: 'Mostre o prototipo para uma pessoa e registre uma critica que mude algo.',
+    tool: 'Entrevista curta e caderno de campo',
+  },
+];
+
 const evidenceKinds = [
   { value: 'desenho', label: 'Desenho', icon: FileText },
   { value: 'foto', label: 'Foto autorizada', icon: Camera },
@@ -313,6 +336,13 @@ export default function Home() {
   const currentEntries = fieldEntries.filter((entry) => entry.trackId === trackId);
   const missionEntries = currentEntries.filter((entry) => entry.missionId === mission.id);
   const sharedEntries = fieldEntries.filter((entry) => entry.shared);
+  const openRoadblocks = roadblocks.filter((item) => item.status === 'aberto').length;
+  const pilotSignal =
+    currentEntries.length === 0
+      ? 'Ainda falta a primeira evidencia para avaliar a jornada.'
+      : openRoadblocks > 0
+        ? 'Prioridade humana: acolher roadblocks antes de acelerar a turma.'
+        : 'Boa hora para escolher uma evidencia antiga e planejar o proximo teste.';
   const narrative = buildNarrative(trackId, interests, mission);
   const aiQuickResponse = `Comece perguntando: "${narrative.guideQuestion}" Depois peca a evidencia antes de qualquer solucao. Se a turma travar, ofereca duas opcoes de proximo passo, mas deixe o grupo escolher.`;
 
@@ -726,6 +756,22 @@ export default function Home() {
                   ))}
                 </div>
               </div>
+
+              <div className="maker-panel" data-motion-item>
+                <div>
+                  <p className="eyebrow">Kit maker</p>
+                  <h3>Do pensamento ao prototipo criticavel</h3>
+                </div>
+                <div className="maker-grid">
+                  {makerCards.map((card) => (
+                    <article className="maker-card" key={card.title}>
+                      <span>{card.title}</span>
+                      <p>{card.text}</p>
+                      <small>{card.tool}</small>
+                    </article>
+                  ))}
+                </div>
+              </div>
             </section>
           )}
 
@@ -1020,6 +1066,32 @@ export default function Home() {
                     <span key={item}>{item}</span>
                   ))}
                 </div>
+              </div>
+
+              <div className="pilot-panel" data-motion-item>
+                <div>
+                  <p className="eyebrow">Resumo de piloto</p>
+                  <h3>Sinais da turma nesta trilha</h3>
+                </div>
+                <div className="pilot-grid">
+                  <article>
+                    <strong>{complete}/14</strong>
+                    <span>Missoes com evidencia</span>
+                  </article>
+                  <article>
+                    <strong>{currentEntries.length}</strong>
+                    <span>Registros no caderno</span>
+                  </article>
+                  <article>
+                    <strong>{sharedEntries.length}</strong>
+                    <span>Descobertas no mural</span>
+                  </article>
+                  <article>
+                    <strong>{openRoadblocks}</strong>
+                    <span>Roadblocks abertos</span>
+                  </article>
+                </div>
+                <p>{pilotSignal}</p>
               </div>
 
               <form className="roadblock-form" data-motion-item onSubmit={addRoadblock}>
