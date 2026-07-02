@@ -90,7 +90,7 @@ Enquanto monetizacao nao estiver decidida, o caminho mais seguro e construir pro
 ### Em seguida
 
 1. Modelar dados persistentes para turma, grupo, crianca, facilitador, trilha, fase, evidencia, mural e roadblock.
-2. Preparar modo piloto para uma turma real, com exportacao simples de relatorio para escola/educador.
+2. Preparar modo piloto para uma turma real, evoluindo o relatorio rapido local para exportacao persistente por escola/educador.
 3. Criar uma biblioteca visual inicial: mapas, artefatos, cartas maker, selos cooperativos e estados vazios.
 4. Desenhar prompts sistemicos da IA facilitadora com limites de seguranca e escalonamento humano.
 5. Criar FAQ para escola, educador, familia e gestor publico.

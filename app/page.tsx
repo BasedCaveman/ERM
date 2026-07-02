@@ -324,6 +324,7 @@ export default function Home() {
   const [interests, setInterests] = useState<string[]>([]);
   const [roadblockDraft, setRoadblockDraft] = useState('');
   const [roadblocks, setRoadblocks] = useState<Roadblock[]>([]);
+  const [reportStatus, setReportStatus] = useState('');
   const [hasHydrated, setHasHydrated] = useState(false);
   const [motionSignal, setMotionSignal] = useState(0);
   const mainstageRef = useRef<HTMLElement>(null);
@@ -345,6 +346,42 @@ export default function Home() {
         : 'Boa hora para escolher uma evidencia antiga e planejar o proximo teste.';
   const narrative = buildNarrative(trackId, interests, mission);
   const aiQuickResponse = `Comece perguntando: "${narrative.guideQuestion}" Depois peca a evidencia antes de qualquer solucao. Se a turma travar, ofereca duas opcoes de proximo passo, mas deixe o grupo escolher.`;
+  const latestEntries = currentEntries.slice(0, 3);
+  const pilotReport = [
+    `Relatorio de piloto ERM - ${trackNames[trackId]}`,
+    `Trilha: ${track.pt} (${track.age} anos, ${track.context === 'rural' ? 'rural' : 'urbano'})`,
+    `Interesses declarados: ${narrative.interestLine}`,
+    `Missao atual: ${String(mission.phase).padStart(2, '0')} - ${mission.title}`,
+    `Gancho narrativo: ${narrative.hook}`,
+    `Pergunta-guia: ${narrative.guideQuestion}`,
+    '',
+    'Sinais da turma',
+    `- Missoes com evidencia: ${complete}/14`,
+    `- Registros no caderno: ${currentEntries.length}`,
+    `- Descobertas no mural: ${sharedEntries.length}`,
+    `- Roadblocks abertos: ${openRoadblocks}`,
+    `- Leitura do facilitador: ${pilotSignal}`,
+    '',
+    'Evidencias recentes',
+    ...(latestEntries.length
+      ? latestEntries.map(
+          (entry) =>
+            `- Missao ${String(entry.phase).padStart(2, '0')} (${entry.missionTitle}): ${
+              entry.observation || entry.evidence || 'registro sem resumo'
+            }${entry.nextTest ? ` | Proximo teste: ${entry.nextTest}` : ''}`,
+        )
+      : ['- Ainda nao ha evidencias registradas.']),
+    '',
+    'Roadblocks humanos',
+    ...(roadblocks.length
+      ? roadblocks
+          .slice(0, 3)
+          .map((item) => `- ${item.status === 'aberto' ? 'Aberto' : 'Acolhido'}: ${item.note}`)
+      : ['- Nenhum roadblock registrado.']),
+    '',
+    'Proximo passo recomendado',
+    `- ${narrative.nextTest}`,
+  ].join('\n');
 
   useEffect(() => {
     try {
@@ -550,8 +587,18 @@ export default function Home() {
     setInterests([]);
     setRoadblockDraft('');
     setRoadblocks([]);
+    setReportStatus('');
     setActivePhase(1);
     setView('gateway');
+  }
+
+  async function copyPilotReport() {
+    try {
+      await window.navigator.clipboard.writeText(pilotReport);
+      setReportStatus('Relatorio copiado');
+    } catch {
+      setReportStatus('Nao foi possivel copiar automaticamente');
+    }
   }
 
   return (
@@ -1092,6 +1139,18 @@ export default function Home() {
                   </article>
                 </div>
                 <p>{pilotSignal}</p>
+                <div className="pilot-report">
+                  <div>
+                    <p className="eyebrow">Relatorio rapido</p>
+                    <h4>Para colar em Obsidian, Notion ou e-mail da escola</h4>
+                  </div>
+                  <pre>{pilotReport}</pre>
+                  <button className="primary-action compact" type="button" onClick={copyPilotReport}>
+                    <ClipboardList size={18} />
+                    Copiar relatorio
+                  </button>
+                  {reportStatus && <span>{reportStatus}</span>}
+                </div>
               </div>
 
               <form className="roadblock-form" data-motion-item onSubmit={addRoadblock}>
