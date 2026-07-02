@@ -82,7 +82,7 @@ Enquanto monetizacao nao estiver decidida, o caminho mais seguro e construir pro
 ### Agora
 
 1. Transformar o onboarding atual em um "portal de trilhas" mais completo, com interesses, tom narrativo e convite para primeira missao.
-2. Criar um motor simples de narrativa: `trilha + idade + contexto + interesses + fase atual -> provocacao, exemplo, desafio, evidencia esperada`.
+2. Refinar o motor simples de narrativa ja iniciado no PWA: `trilha + idade + contexto + interesses + fase atual -> provocacao, exemplo, desafio, evidencia esperada`.
 3. Expandir o caderno de campo para aceitar evidencias por tipo, reflexoes e decisao do grupo.
 4. Evoluir o painel do facilitador com fila de roadblocks, sugestao rapida de IA, status humano e historico por grupo.
 5. Definir uma missao-amostra publicavel sem copiar texto literal dos manuais.

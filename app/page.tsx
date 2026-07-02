@@ -66,6 +66,13 @@ type Roadblock = {
   createdAt: string;
 };
 
+type NarrativeSeed = {
+  scene: string;
+  tension: string;
+  helper: string;
+  artifact: string;
+};
+
 const STORAGE_KEY = 'erm:v2:workspace';
 
 const trackNames: Record<TrackId, string> = {
@@ -141,6 +148,72 @@ const interestOptions = [
   'Cuidar de pessoas',
 ];
 
+const narrativeSeeds: Record<TrackId, NarrativeSeed[]> = {
+  'rural-kids': [
+    {
+      scene: 'a feira acordando cedo',
+      tension: 'algo bom do territorio nao chega facil para todo mundo',
+      helper: 'uma pessoa que cuida, planta, vende ou transporta',
+      artifact: 'um desenho de solucao com materiais simples',
+    },
+    {
+      scene: 'a horta depois da chuva',
+      tension: 'um recurso importante esta sendo desperdicado ou mal entendido',
+      helper: 'alguem da familia que conhece o ritmo do campo',
+      artifact: 'um mapa de pistas com cheiros, sons e caminhos',
+    },
+  ],
+  'urban-kids': [
+    {
+      scene: 'o caminho entre casa, escola e praca',
+      tension: 'uma rotina comum esconde um problema que ninguem parou para escutar',
+      helper: 'uma pessoa da cantina, portaria, familia ou vizinhanca',
+      artifact: 'um mapa do bairro com uma melhoria possivel',
+    },
+    {
+      scene: 'a escola no intervalo',
+      tension: 'um combinado pequeno pode melhorar a vida de muita gente',
+      helper: 'alguem que usa o espaco todos os dias',
+      artifact: 'um prototipo de combinados, placa, jogo ou servico',
+    },
+  ],
+  'rural-youth': [
+    {
+      scene: 'uma cadeia local de producao e entrega',
+      tension: 'valor se perde entre quem produz, quem transporta e quem compra',
+      helper: 'um produtor, comerciante, guia ou lider comunitario',
+      artifact: 'um canvas simples com gargalo, parceiro e teste',
+    },
+    {
+      scene: 'um atrativo natural ou cultural pouco aproveitado',
+      tension: 'a comunidade tem potencia, mas precisa organizar narrativa, acesso ou servico',
+      helper: 'alguem que conhece a historia e os limites do lugar',
+      artifact: 'um roteiro de experiencia com evidencias e cuidados',
+    },
+  ],
+  'urban-youth': [
+    {
+      scene: 'uma rotina de mobilidade, estudo, cultura ou consumo',
+      tension: 'tempo, atencao ou informacao se perdem no caminho',
+      helper: 'um usuario real do bairro, da escola ou de um servico local',
+      artifact: 'um fluxo digital ou fisico para testar com usuarios',
+    },
+    {
+      scene: 'um ponto de encontro da cidade',
+      tension: 'pessoas diferentes usam o mesmo espaco com necessidades invisiveis',
+      helper: 'alguem que observa a rua todos os dias',
+      artifact: 'um prototipo de servico, campanha, mapa ou ferramenta',
+    },
+  ],
+};
+
+const phaseMoments = [
+  { max: 4, verb: 'observar', output: 'uma pergunta investigativa' },
+  { max: 7, verb: 'escutar', output: 'um insight com evidencia' },
+  { max: 10, verb: 'prototipar', output: 'um teste pequeno e criticavel' },
+  { max: 14, verb: 'comunicar', output: 'uma melhoria explicada com honestidade' },
+];
+
 const cognitiveLoop = [
   'Predizer o que a turma acha que vai acontecer.',
   'Observar uma contradicao no territorio.',
@@ -198,6 +271,26 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+function buildNarrative(trackId: TrackId, interests: string[], mission: { phase: number; title: string; goal: string }) {
+  const seeds = narrativeSeeds[trackId];
+  const seed = seeds[(mission.phase - 1) % seeds.length];
+  const moment = phaseMoments.find((item) => mission.phase <= item.max) ?? phaseMoments[phaseMoments.length - 1];
+  const interestLine = interests.length ? interests.join(', ') : 'curiosidades que a turma escolher';
+  const firstInterest = interests[0] ?? 'uma pista do territorio';
+  const secondInterest = interests[1] ?? 'a rotina das pessoas';
+
+  return {
+    interestLine,
+    hook: `Hoje a ${trackNames[trackId]} entra em ${seed.scene}. A turma usa ${interestLine} para ${moment.verb} e transformar ${mission.goal} em ${moment.output}.`,
+    scene: seed.scene,
+    tension: seed.tension,
+    guideQuestion: `Onde ${firstInterest} encontra ${secondInterest} no territorio, e que problema real aparece quando olhamos com calma?`,
+    evidencePrompt: `Tragam uma evidencia pequena: uma frase de ${seed.helper}, um desenho, uma foto autorizada ou um teste que mostre ${seed.tension}.`,
+    prototypePrompt: `Construam ${seed.artifact}. Depois comparem com a evidencia antes de pedir ajuda da IA.`,
+    nextTest: `Testar a ideia com ${seed.helper} e registrar o que mudou no pensamento do grupo.`,
+  };
+}
+
 export default function Home() {
   const [trackId, setTrackId] = useState<TrackId>('rural-kids');
   const [view, setView] = useState<ViewId>('gateway');
@@ -220,9 +313,8 @@ export default function Home() {
   const currentEntries = fieldEntries.filter((entry) => entry.trackId === trackId);
   const missionEntries = currentEntries.filter((entry) => entry.missionId === mission.id);
   const sharedEntries = fieldEntries.filter((entry) => entry.shared);
-  const interestLine = interests.length ? interests.join(', ') : 'curiosidades que a turma escolher';
-  const narrativeHook = `Hoje a ${trackNames[trackId]} comeca pelos interesses da turma: ${interestLine}. A missao ${mission.title.toLowerCase()} vira uma investigacao sobre ${mission.goal}.`;
-  const aiQuickResponse = `Comece perguntando: "Onde ${interestLine} aparece no nosso territorio?" Depois peca uma evidencia pequena antes de qualquer solucao. Se a turma travar, ofereca duas opcoes de proximo passo, mas deixe o grupo escolher.`;
+  const narrative = buildNarrative(trackId, interests, mission);
+  const aiQuickResponse = `Comece perguntando: "${narrative.guideQuestion}" Depois peca a evidencia antes de qualquer solucao. Se a turma travar, ofereca duas opcoes de proximo passo, mas deixe o grupo escolher.`;
 
   useEffect(() => {
     try {
@@ -513,7 +605,7 @@ export default function Home() {
                 <p className="eyebrow">{trackNames[trackId]}</p>
                 <h2>{track.pt}</h2>
                 <p>{trackIntros[trackId]}</p>
-                <p className="narrative-line">{narrativeHook}</p>
+                <p className="narrative-line">{narrative.hook}</p>
               </div>
 
               <div className="map-grid">
@@ -557,7 +649,7 @@ export default function Home() {
                   <p className="eyebrow">Missao {String(mission.phase).padStart(2, '0')}</p>
                   <h2>{mission.title}</h2>
                   <p>{mission.storyPt}</p>
-                  <p className="narrative-line">{narrativeHook}</p>
+                  <p className="narrative-line">{narrative.hook}</p>
                 </div>
                 <button
                   className="primary-action"
@@ -584,6 +676,31 @@ export default function Home() {
                   <h3>IA facilitadora</h3>
                   <p>{mission.aiPrepPt}</p>
                 </article>
+              </div>
+
+              <div className="narrative-panel" data-motion-item>
+                <div>
+                  <p className="eyebrow">Motor narrativo</p>
+                  <h3>Da curiosidade ao teste real</h3>
+                </div>
+                <div className="narrative-grid">
+                  <article>
+                    <span>Cena</span>
+                    <p>{narrative.scene}</p>
+                  </article>
+                  <article>
+                    <span>Pergunta-guia</span>
+                    <p>{narrative.guideQuestion}</p>
+                  </article>
+                  <article>
+                    <span>Evidencia esperada</span>
+                    <p>{narrative.evidencePrompt}</p>
+                  </article>
+                  <article>
+                    <span>Proximo teste</span>
+                    <p>{narrative.nextTest}</p>
+                  </article>
+                </div>
               </div>
 
               <div className="loop-panel" data-motion-item>
@@ -657,7 +774,11 @@ export default function Home() {
                 </div>
                 <div className="story-preview">
                   <WandSparkles size={20} />
-                  <p>{narrativeHook}</p>
+                  <p>{narrative.hook}</p>
+                </div>
+                <div className="story-brief">
+                  <span>{narrative.guideQuestion}</span>
+                  <span>{narrative.prototypePrompt}</span>
                 </div>
               </div>
             </section>
@@ -742,7 +863,7 @@ export default function Home() {
                     <input
                       value={fieldDraft.nextTest}
                       onChange={(event) => updateFieldDraft('nextTest', event.target.value)}
-                      placeholder="Ex.: conversar com 2 pessoas da feira"
+                      placeholder={narrative.nextTest}
                     />
                   </label>
 

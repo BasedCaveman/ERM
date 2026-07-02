@@ -362,6 +362,43 @@ p {
   background: var(--paper-strong);
 }
 
+.narrative-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.92);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.narrative-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.narrative-grid article {
+  min-height: 146px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.narrative-grid span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--forest);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.narrative-grid p {
+  margin-bottom: 0;
+}
+
 .loop-panel {
   margin-top: 14px;
   border-radius: 8px;
@@ -770,6 +807,23 @@ p {
   font-weight: 700;
 }
 
+.story-brief {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.story-brief span {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .facilitator-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -910,6 +964,7 @@ p {
   }
 
   .phase-map,
+  .narrative-grid,
   .loop-panel ol,
   .learning-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -952,6 +1007,8 @@ p {
   .rules-grid,
   .mural-grid,
   .phase-map,
+  .narrative-grid,
+  .story-brief,
   .loop-panel ol,
   .learning-grid {
     grid-template-columns: 1fr;
