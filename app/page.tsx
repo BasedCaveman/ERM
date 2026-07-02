@@ -55,8 +55,18 @@ type SavedWorkspace = {
   done?: Record<string, boolean>;
   fieldEntries?: FieldEntry[];
   interests?: string[];
+  pilotProfile?: PilotProfile;
   roadblocks?: Roadblock[];
   trackId?: TrackId;
+};
+
+type PilotProfile = {
+  school: string;
+  className: string;
+  groupName: string;
+  facilitator: string;
+  territory: string;
+  window: string;
 };
 
 type Roadblock = {
@@ -290,6 +300,15 @@ const emptyDraft: FieldDraft = {
   shared: true,
 };
 
+const emptyPilotProfile: PilotProfile = {
+  school: '',
+  className: '',
+  groupName: '',
+  facilitator: '',
+  territory: '',
+  window: '',
+};
+
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -322,6 +341,7 @@ export default function Home() {
   const [fieldDraft, setFieldDraft] = useState<FieldDraft>(emptyDraft);
   const [fieldEntries, setFieldEntries] = useState<FieldEntry[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
+  const [pilotProfile, setPilotProfile] = useState<PilotProfile>(emptyPilotProfile);
   const [roadblockDraft, setRoadblockDraft] = useState('');
   const [roadblocks, setRoadblocks] = useState<Roadblock[]>([]);
   const [reportStatus, setReportStatus] = useState('');
@@ -345,10 +365,19 @@ export default function Home() {
         ? 'Prioridade humana: acolher roadblocks antes de acelerar a turma.'
         : 'Boa hora para escolher uma evidencia antiga e planejar o proximo teste.';
   const narrative = buildNarrative(trackId, interests, mission);
+  const pilotIdentity = [
+    pilotProfile.school || 'Escola/rede a definir',
+    pilotProfile.className || 'turma a definir',
+    pilotProfile.groupName || 'grupo a definir',
+  ].join(' · ');
   const aiQuickResponse = `Comece perguntando: "${narrative.guideQuestion}" Depois peca a evidencia antes de qualquer solucao. Se a turma travar, ofereca duas opcoes de proximo passo, mas deixe o grupo escolher.`;
   const latestEntries = currentEntries.slice(0, 3);
   const pilotReport = [
     `Relatorio de piloto ERM - ${trackNames[trackId]}`,
+    `Identificacao: ${pilotIdentity}`,
+    `Facilitador: ${pilotProfile.facilitator || 'a definir'}`,
+    `Territorio observado: ${pilotProfile.territory || 'a definir'}`,
+    `Janela do piloto: ${pilotProfile.window || 'a definir'}`,
     `Trilha: ${track.pt} (${track.age} anos, ${track.context === 'rural' ? 'rural' : 'urbano'})`,
     `Interesses declarados: ${narrative.interestLine}`,
     `Missao atual: ${String(mission.phase).padStart(2, '0')} - ${mission.title}`,
@@ -410,6 +439,10 @@ export default function Home() {
           setInterests(saved.interests.filter((item) => typeof item === 'string'));
         }
 
+        if (saved.pilotProfile && typeof saved.pilotProfile === 'object') {
+          setPilotProfile({ ...emptyPilotProfile, ...saved.pilotProfile });
+        }
+
         if (Array.isArray(saved.roadblocks)) {
           setRoadblocks(saved.roadblocks);
         }
@@ -433,11 +466,12 @@ export default function Home() {
         done,
         fieldEntries,
         interests,
+        pilotProfile,
         roadblocks,
         trackId,
       } satisfies SavedWorkspace),
     );
-  }, [activePhase, done, fieldEntries, hasHydrated, interests, roadblocks, trackId]);
+  }, [activePhase, done, fieldEntries, hasHydrated, interests, pilotProfile, roadblocks, trackId]);
 
   useEffect(() => {
     if (!hasHydrated || prefersReducedMotion()) {
@@ -500,6 +534,11 @@ export default function Home() {
 
   function updateFieldDraft(field: keyof FieldDraft, value: string | boolean) {
     setFieldDraft((draft) => ({ ...draft, [field]: value }));
+  }
+
+  function updatePilotProfile(field: keyof PilotProfile, value: string) {
+    setPilotProfile((profile) => ({ ...profile, [field]: value }));
+    setReportStatus('');
   }
 
   function addFieldEntry(event: React.FormEvent<HTMLFormElement>) {
@@ -585,6 +624,7 @@ export default function Home() {
     setFieldDraft(emptyDraft);
     setFieldEntries([]);
     setInterests([]);
+    setPilotProfile(emptyPilotProfile);
     setRoadblockDraft('');
     setRoadblocks([]);
     setReportStatus('');
@@ -1063,6 +1103,63 @@ export default function Home() {
                   reflexoes que pedem presenca.
                 </p>
               </div>
+
+              <section className="pilot-profile" data-motion-item>
+                <div>
+                  <p className="eyebrow">Perfil do piloto</p>
+                  <h3>{pilotIdentity}</h3>
+                </div>
+                <div className="pilot-profile-grid">
+                  <label>
+                    Escola ou rede
+                    <input
+                      value={pilotProfile.school}
+                      onChange={(event) => updatePilotProfile('school', event.target.value)}
+                      placeholder="Ex.: Escola Municipal Rio Verde"
+                    />
+                  </label>
+                  <label>
+                    Turma
+                    <input
+                      value={pilotProfile.className}
+                      onChange={(event) => updatePilotProfile('className', event.target.value)}
+                      placeholder="Ex.: 5o ano B"
+                    />
+                  </label>
+                  <label>
+                    Grupo
+                    <input
+                      value={pilotProfile.groupName}
+                      onChange={(event) => updatePilotProfile('groupName', event.target.value)}
+                      placeholder="Ex.: Time Horta Viva"
+                    />
+                  </label>
+                  <label>
+                    Facilitador
+                    <input
+                      value={pilotProfile.facilitator}
+                      onChange={(event) => updatePilotProfile('facilitator', event.target.value)}
+                      placeholder="Nome de quem acompanha"
+                    />
+                  </label>
+                  <label>
+                    Territorio observado
+                    <input
+                      value={pilotProfile.territory}
+                      onChange={(event) => updatePilotProfile('territory', event.target.value)}
+                      placeholder="Ex.: feira, bairro, escola, horta"
+                    />
+                  </label>
+                  <label>
+                    Janela do piloto
+                    <input
+                      value={pilotProfile.window}
+                      onChange={(event) => updatePilotProfile('window', event.target.value)}
+                      placeholder="Ex.: agosto a setembro"
+                    />
+                  </label>
+                </div>
+              </section>
 
               <div className="facilitator-grid">
                 <article className="facilitator-card" data-motion-item>
