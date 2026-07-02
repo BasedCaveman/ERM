@@ -68,6 +68,10 @@ O agente deve favorecer metacognicao e autoria:
 - Sugerir revisao ou teste, nao solucao final.
 - Pedir que o grupo registre o que decidiu manter, mudar ou descartar.
 
+## Guardrails de piloto com criancas
+
+Antes de publicar, exportar ou usar evidencias com IA, o facilitador precisa confirmar autorizacao de responsaveis, minimizar dados pessoais, usar fotos e audios somente quando autorizados, revisar respostas da IA, descrever a comunidade com respeito e escalar bloqueios sensiveis para acompanhamento humano.
+
 ## Referencias de apoio
 
 - Roediger e Karpicke, test-enhanced learning e pratica de recuperacao: https://en.wikipedia.org/wiki/Testing_effect

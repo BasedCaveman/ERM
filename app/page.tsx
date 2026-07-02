@@ -67,6 +67,7 @@ type PilotProfile = {
   facilitator: string;
   territory: string;
   window: string;
+  safeguards: Record<string, boolean>;
 };
 
 type Roadblock = {
@@ -307,7 +308,41 @@ const emptyPilotProfile: PilotProfile = {
   facilitator: '',
   territory: '',
   window: '',
+  safeguards: {},
 };
+
+const safeguardItems = [
+  {
+    id: 'guardianConsent',
+    label: 'Autorizacao de responsaveis',
+    report: 'Autorizacao de responsaveis registrada',
+  },
+  {
+    id: 'minimalData',
+    label: 'Dados minimos no registro',
+    report: 'Registros evitam dados pessoais desnecessarios',
+  },
+  {
+    id: 'mediaConsent',
+    label: 'Fotos e audios autorizados',
+    report: 'Midias usadas apenas quando autorizadas',
+  },
+  {
+    id: 'aiReviewed',
+    label: 'Resposta da IA revisada por humano',
+    report: 'Sugestoes da IA passam por revisao humana',
+  },
+  {
+    id: 'communityRespect',
+    label: 'Comunidade descrita com respeito',
+    report: 'Relatos evitam exposicao ou julgamento da comunidade',
+  },
+  {
+    id: 'humanEscalation',
+    label: 'Roadblocks sensiveis vao para humano',
+    report: 'Bloqueios sensiveis sao escalados para facilitador humano',
+  },
+];
 
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -372,6 +407,8 @@ export default function Home() {
   ].join(' · ');
   const aiQuickResponse = `Comece perguntando: "${narrative.guideQuestion}" Depois peca a evidencia antes de qualquer solucao. Se a turma travar, ofereca duas opcoes de proximo passo, mas deixe o grupo escolher.`;
   const latestEntries = currentEntries.slice(0, 3);
+  const checkedSafeguards = safeguardItems.filter((item) => pilotProfile.safeguards[item.id]);
+  const missingSafeguards = safeguardItems.length - checkedSafeguards.length;
   const pilotReport = [
     `Relatorio de piloto ERM - ${trackNames[trackId]}`,
     `Identificacao: ${pilotIdentity}`,
@@ -390,6 +427,12 @@ export default function Home() {
     `- Descobertas no mural: ${sharedEntries.length}`,
     `- Roadblocks abertos: ${openRoadblocks}`,
     `- Leitura do facilitador: ${pilotSignal}`,
+    '',
+    'Cuidados de seguranca e consentimento',
+    ...(checkedSafeguards.length
+      ? checkedSafeguards.map((item) => `- ${item.report}`)
+      : ['- Nenhum cuidado foi marcado ainda.']),
+    missingSafeguards > 0 ? `- Pendencias de cuidado: ${missingSafeguards}` : '- Checklist de cuidado completo',
     '',
     'Evidencias recentes',
     ...(latestEntries.length
@@ -536,8 +579,19 @@ export default function Home() {
     setFieldDraft((draft) => ({ ...draft, [field]: value }));
   }
 
-  function updatePilotProfile(field: keyof PilotProfile, value: string) {
+  function updatePilotProfile(field: Exclude<keyof PilotProfile, 'safeguards'>, value: string) {
     setPilotProfile((profile) => ({ ...profile, [field]: value }));
+    setReportStatus('');
+  }
+
+  function toggleSafeguard(id: string) {
+    setPilotProfile((profile) => ({
+      ...profile,
+      safeguards: {
+        ...profile.safeguards,
+        [id]: !profile.safeguards[id],
+      },
+    }));
     setReportStatus('');
   }
 
@@ -1158,6 +1212,24 @@ export default function Home() {
                       placeholder="Ex.: agosto a setembro"
                     />
                   </label>
+                </div>
+                <div className="safeguard-panel">
+                  <div>
+                    <p className="eyebrow">Cuidado antes de publicar</p>
+                    <h4>{missingSafeguards === 0 ? 'Checklist completo' : `${missingSafeguards} cuidados pendentes`}</h4>
+                  </div>
+                  <div className="safeguard-grid">
+                    {safeguardItems.map((item) => (
+                      <label className="check-row" key={item.id}>
+                        <input
+                          checked={Boolean(pilotProfile.safeguards[item.id])}
+                          type="checkbox"
+                          onChange={() => toggleSafeguard(item.id)}
+                        />
+                        {item.label}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </section>
 

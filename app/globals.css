@@ -911,6 +911,34 @@ p {
   box-shadow: 0 0 0 3px rgba(37, 111, 90, 0.14);
 }
 
+.safeguard-panel {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.safeguard-panel h4 {
+  margin-bottom: 0;
+  font-size: 16px;
+}
+
+.safeguard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.safeguard-grid .check-row {
+  min-height: 52px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8f2e8;
+  padding: 10px;
+}
+
 .facilitator-card,
 .roadblock-form,
 .roadblock-card {
@@ -1125,6 +1153,7 @@ p {
   .fieldbook-layout,
   .facilitator-grid,
   .pilot-profile-grid,
+  .safeguard-grid,
   .rules-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1170,6 +1199,7 @@ p {
   .fieldbook-layout,
   .facilitator-grid,
   .pilot-profile-grid,
+  .safeguard-grid,
   .roadblock-form,
   .form-grid,
   .notebook-grid,
