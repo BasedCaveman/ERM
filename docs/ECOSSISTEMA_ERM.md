@@ -2,6 +2,8 @@
 
 Este documento consolida o contexto do projeto "Empreendedor Rural Mirim" em uma forma executavel para produto, design, conteudo, facilitacao e IA.
 
+Para a ponte com a vault Obsidian e o backlog operacional, ver `docs/OBSIDIAN_CONTEXT_NEXT_STEPS.md`.
+
 ## Tese
 
 O ERM nao deve ser tratado como um curso linear de empreendedorismo infantil. Ele deve funcionar como um ecossistema narrativo de aprendizagem em que criancas e jovens observam o territorio, formulam hipoteses, conversam com pessoas reais, prototipam solucoes pequenas, testam, refletem e compartilham descobertas.

@@ -1,5 +1,7 @@
 # Blueprint pedagógico e de produto
 
+Complemento operacional: `docs/OBSIDIAN_CONTEXT_NEXT_STEPS.md` consolida as notas da vault Obsidian, as prioridades de mercado e a proxima sequencia de produto.
+
 ## Princípio central
 A plataforma não ensina a criança a apertar botão. Ela ensina a perceber necessidades, conversar com pessoas, imaginar soluções, construir protótipos pequenos, testar e melhorar.
 
