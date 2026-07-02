@@ -54,6 +54,7 @@ textarea {
 .region-card,
 .task-card,
 .loop-panel,
+.learning-panel,
 .notebook-card,
 .broadcast,
 .mural-note {
@@ -378,6 +379,39 @@ p {
 .loop-panel li {
   color: var(--muted);
   line-height: 1.45;
+}
+
+.learning-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.learning-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.learning-card {
+  min-height: 132px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.learning-card span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--clay);
+  font-weight: 900;
+}
+
+.learning-card p {
+  margin-bottom: 0;
 }
 
 .notebook-grid {
@@ -752,6 +786,17 @@ p {
   background: var(--paper-strong);
 }
 
+.ai-literacy-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #edf6f3;
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
 .split-heading {
   display: flex;
   align-items: flex-start;
@@ -865,7 +910,8 @@ p {
   }
 
   .phase-map,
-  .loop-panel ol {
+  .loop-panel ol,
+  .learning-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -906,7 +952,8 @@ p {
   .rules-grid,
   .mural-grid,
   .phase-map,
-  .loop-panel ol {
+  .loop-panel ol,
+  .learning-grid {
     grid-template-columns: 1fr;
   }
 

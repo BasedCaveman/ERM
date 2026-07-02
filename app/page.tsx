@@ -149,6 +149,32 @@ const cognitiveLoop = [
   'Registrar evidencia e refletir em roda.',
 ];
 
+const learningPrinciples = [
+  {
+    title: 'Escolha real',
+    text: 'A turma escolhe trilha, interesses e pergunta investigativa para sustentar autonomia.',
+  },
+  {
+    title: 'Recuperar antes',
+    text: 'Antes da explicacao, o grupo tenta lembrar, predizer e separar palpite de evidencia.',
+  },
+  {
+    title: 'Revisitar depois',
+    text: 'Cada fase deve puxar uma evidencia antiga e transformar memoria em proximo teste.',
+  },
+  {
+    title: 'IA criticavel',
+    text: 'A resposta da IA vira rascunho: o time compara com o territorio e decide o que usar.',
+  },
+];
+
+const aiLiteracyProtocol = [
+  'Perguntar ao territorio antes de pedir resposta.',
+  'Usar IA para organizar, variar e prototipar.',
+  'Comparar sugestoes com evidencias reais.',
+  'Registrar o que foi decisao humana.',
+];
+
 const evidenceKinds = [
   { value: 'desenho', label: 'Desenho', icon: FileText },
   { value: 'foto', label: 'Foto autorizada', icon: Camera },
@@ -568,6 +594,21 @@ export default function Home() {
                   ))}
                 </ol>
               </div>
+
+              <div className="learning-panel" data-motion-item>
+                <div>
+                  <p className="eyebrow">Bussola de aprendizagem</p>
+                  <h3>Como esta missao protege curiosidade, memoria e autoria</h3>
+                </div>
+                <div className="learning-grid">
+                  {learningPrinciples.map((principle) => (
+                    <article className="learning-card" key={principle.title}>
+                      <span>{principle.title}</span>
+                      <p>{principle.text}</p>
+                    </article>
+                  ))}
+                </div>
+              </div>
             </section>
           )}
 
@@ -846,6 +887,18 @@ export default function Home() {
                     <span>Destravar roadblocks humanos</span>
                   </div>
                 </article>
+              </div>
+
+              <div className="ai-literacy-panel" data-motion-item>
+                <div>
+                  <p className="eyebrow">Literacia em IA</p>
+                  <h3>Protocolo antes de aceitar uma sugestao</h3>
+                </div>
+                <div className="protocol-list">
+                  {aiLiteracyProtocol.map((item) => (
+                    <span key={item}>{item}</span>
+                  ))}
+                </div>
               </div>
 
               <form className="roadblock-form" data-motion-item onSubmit={addRoadblock}>

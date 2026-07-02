@@ -2,6 +2,8 @@
 
 Este documento traduz as notas do Obsidian do projeto Empreendedor Rural Mirim em decisoes operacionais para produto, design, conteudo, facilitacao e IA.
 
+Complemento de aprendizagem: `docs/LEARNING_DESIGN_PRINCIPLES.md` traduz referencias de memoria, motivacao, metacognicao e literacia em IA em regras de produto.
+
 ## Fontes consultadas
 
 - `/Volumes/bigdata/ERM/Empreendedor Rural Mirim/VAULT-INDEX.md`
