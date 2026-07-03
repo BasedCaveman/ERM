@@ -254,6 +254,7 @@ p {
 .fieldbook-view,
 .radio-view,
 .mural-view,
+.support-view,
 .gateway-view,
 .facilitator-view {
   padding: 24px;
@@ -262,6 +263,31 @@ p {
 .section-head {
   max-width: 760px;
   margin-bottom: 20px;
+}
+
+.gateway-hero,
+.map-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+.ecosystem-figure {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin: 0;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.ecosystem-figure img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
 }
 
 .map-grid,
@@ -492,6 +518,115 @@ p {
   align-self: end;
   color: var(--muted);
   line-height: 1.4;
+}
+
+.support-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.42fr);
+  gap: 14px;
+}
+
+.support-deck {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.support-card,
+.flow-panel,
+.ecosystem-signals article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.support-card {
+  display: grid;
+  gap: 10px;
+  min-height: 210px;
+  padding: 18px;
+}
+
+.support-card span {
+  width: fit-content;
+  border-radius: 8px;
+  background: #e7f2e9;
+  color: var(--forest);
+  padding: 6px 9px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.support-card p {
+  margin-bottom: 0;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.support-card small {
+  align-self: end;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.flow-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.flow-steps {
+  display: grid;
+  gap: 10px;
+}
+
+.flow-step {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.flow-step span {
+  display: block;
+  height: 10px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--forest), var(--gold));
+}
+
+.flow-step strong {
+  color: var(--ink);
+}
+
+.flow-step small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.ecosystem-signals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ecosystem-signals article {
+  display: grid;
+  gap: 6px;
+  min-height: 92px;
+  padding: 14px;
+}
+
+.ecosystem-signals strong {
+  color: var(--clay);
+  font-size: 20px;
+}
+
+.ecosystem-signals span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .notebook-grid {
@@ -1147,14 +1282,22 @@ p {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .gateway-hero,
+  .map-hero,
+  .support-layout {
+    grid-template-columns: 1fr;
+  }
+
   .map-grid,
   .gateway-grid,
   .mission-layout,
   .fieldbook-layout,
+  .support-deck,
   .facilitator-grid,
   .pilot-profile-grid,
   .safeguard-grid,
-  .rules-grid {
+  .rules-grid,
+  .ecosystem-signals {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1179,6 +1322,7 @@ p {
   .fieldbook-view,
   .radio-view,
   .mural-view,
+  .support-view,
   .gateway-view,
   .facilitator-view {
     padding: 16px;
@@ -1193,10 +1337,14 @@ p {
   }
 
   .track-list,
+  .gateway-hero,
+  .map-hero,
   .map-grid,
   .gateway-grid,
   .mission-layout,
   .fieldbook-layout,
+  .support-layout,
+  .support-deck,
   .facilitator-grid,
   .pilot-profile-grid,
   .safeguard-grid,
@@ -1205,6 +1353,7 @@ p {
   .notebook-grid,
   .rules-grid,
   .mural-grid,
+  .ecosystem-signals,
   .phase-map,
   .narrative-grid,
   .story-brief,

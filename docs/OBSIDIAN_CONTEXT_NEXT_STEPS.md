@@ -86,6 +86,7 @@ Enquanto monetizacao nao estiver decidida, o caminho mais seguro e construir pro
 3. Expandir o caderno de campo para aceitar evidencias por tipo, reflexoes e decisao do grupo.
 4. Evoluir o painel do facilitador com fila de roadblocks, sugestao rapida de IA, resumo de piloto, status humano e historico por grupo.
 5. Definir uma missao-amostra publicavel sem copiar texto literal dos manuais.
+6. Enriquecer a biblioteca de apoios visuais com mapa vivo, cartas de ajuda, grafico de jornada e assets leves para mobile/PWA.
 
 ### Em seguida
 

@@ -29,7 +29,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { content } from '../lib/content';
 
 type TrackId = 'rural-kids' | 'urban-kids' | 'rural-youth' | 'urban-youth';
-type ViewId = 'gateway' | 'map' | 'mission' | 'fieldbook' | 'radio' | 'mural' | 'facilitator';
+type ViewId = 'gateway' | 'map' | 'mission' | 'support' | 'fieldbook' | 'radio' | 'mural' | 'facilitator';
 
 type FieldDraft = {
   kind: string;
@@ -138,6 +138,7 @@ const views = [
   { id: 'gateway', label: 'Entrada', icon: Compass },
   { id: 'map', label: 'Mapa', icon: Map },
   { id: 'mission', label: 'Missao', icon: Route },
+  { id: 'support', label: 'Apoios', icon: Sparkles },
   { id: 'fieldbook', label: 'Caderno', icon: BookOpen },
   { id: 'radio', label: 'Radio', icon: Mic2 },
   { id: 'mural', label: 'Mural', icon: MessageSquareText },
@@ -280,6 +281,48 @@ const makerCards = [
     text: 'Mostre o prototipo para uma pessoa e registre uma critica que mude algo.',
     tool: 'Entrevista curta e caderno de campo',
   },
+];
+
+const supportCards = [
+  {
+    title: 'Pergunta melhor',
+    moment: 'Quando a turma pula direto para solucao',
+    prompt: 'Que evidencia faria a gente mudar de ideia?',
+    action: 'Voltar ao territorio e coletar uma frase, desenho ou observacao.',
+  },
+  {
+    title: 'Teste rapido',
+    moment: 'Quando a ideia parece grande demais',
+    prompt: 'Qual versao minuscula cabe em 20 minutos?',
+    action: 'Fazer papel, encenacao, Scratch simples ou conversa com uma pessoa.',
+  },
+  {
+    title: 'Melhoria visual',
+    moment: 'Quando o prototipo existe, mas ninguem entende',
+    prompt: 'O que uma pessoa precisa ver primeiro?',
+    action: 'Reorganizar a historia em problema, evidencia, solucao e proximo teste.',
+  },
+  {
+    title: 'Apresentacao honesta',
+    moment: 'Quando chegou a hora de compartilhar',
+    prompt: 'O que aprendemos que nao sabiamos no comeco?',
+    action: 'Mostrar tambem duvidas, limites, criticas recebidas e mudancas feitas.',
+  },
+];
+
+const learningFlow = [
+  { label: 'Observar', value: 18, text: 'territorio e sinais' },
+  { label: 'Escutar', value: 34, text: 'pessoas reais' },
+  { label: 'Criar', value: 52, text: 'ideias e prototipos' },
+  { label: 'Testar', value: 72, text: 'evidencias e criticas' },
+  { label: 'Compartilhar', value: 92, text: 'mural, radio e comunidade' },
+];
+
+const ecosystemSignals = [
+  ['Tela', 'organiza a missao'],
+  ['Mundo', 'gera evidencia'],
+  ['IA', 'faz perguntas e rascunhos'],
+  ['Humano', 'acolhe bloqueios'],
 ];
 
 const evidenceKinds = [
@@ -772,11 +815,16 @@ export default function Home() {
 
           {view === 'map' && (
             <section className="map-view" data-motion-surface>
-              <div className="section-head">
-                <p className="eyebrow">{trackNames[trackId]}</p>
-                <h2>{track.pt}</h2>
-                <p>{trackIntros[trackId]}</p>
-                <p className="narrative-line">{narrative.hook}</p>
+              <div className="map-hero">
+                <div className="section-head">
+                  <p className="eyebrow">{trackNames[trackId]}</p>
+                  <h2>{track.pt}</h2>
+                  <p>{trackIntros[trackId]}</p>
+                  <p className="narrative-line">{narrative.hook}</p>
+                </div>
+                <figure className="ecosystem-figure" data-motion-item>
+                  <img src="/images/erm-ecosystem-map.jpg" alt="Mapa ilustrado do ecossistema ERM" />
+                </figure>
               </div>
 
               <div className="map-grid">
@@ -916,15 +964,71 @@ export default function Home() {
             </section>
           )}
 
+          {view === 'support' && (
+            <section className="support-view" data-motion-surface>
+              <div className="section-head">
+                <p className="eyebrow">Conteudos de apoio</p>
+                <h2>Cartas para destravar a jornada</h2>
+                <p>
+                  Apoios inspirados na vault: progresso cooperativo, cartas de ajuda, equilibrio
+                  tela-mundo e IA como estagiaria organizada.
+                </p>
+              </div>
+
+              <div className="support-layout">
+                <section className="support-deck" aria-label="Cartas de apoio">
+                  {supportCards.map((card) => (
+                    <article className="support-card" data-motion-item key={card.title}>
+                      <span>{card.title}</span>
+                      <h3>{card.moment}</h3>
+                      <p>{card.prompt}</p>
+                      <small>{card.action}</small>
+                    </article>
+                  ))}
+                </section>
+
+                <aside className="flow-panel" data-motion-item>
+                  <div>
+                    <p className="eyebrow">Grafico da jornada</p>
+                    <h3>Da observacao ao impacto</h3>
+                  </div>
+                  <div className="flow-steps">
+                    {learningFlow.map((step) => (
+                      <div className="flow-step" key={step.label}>
+                        <span style={{ width: `${step.value}%` }} />
+                        <strong>{step.label}</strong>
+                        <small>{step.text}</small>
+                      </div>
+                    ))}
+                  </div>
+                </aside>
+              </div>
+
+              <div className="ecosystem-signals" data-motion-item>
+                {ecosystemSignals.map(([title, text]) => (
+                  <article key={title}>
+                    <strong>{title}</strong>
+                    <span>{text}</span>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
           {view === 'gateway' && (
             <section className="gateway-view" data-motion-surface>
-              <div className="section-head">
-                <p className="eyebrow">Entrada do ecossistema</p>
-                <h2>Escolha uma porta de aventura</h2>
-                <p>
-                  A trilha nasce do territorio e dos interesses que as criancas trazem. Primeiro escolha
-                  a porta, depois marque os temas que podem virar pistas narrativas.
-                </p>
+              <div className="gateway-hero">
+                <div className="section-head">
+                  <p className="eyebrow">Entrada do ecossistema</p>
+                  <h2>Escolha uma porta de aventura</h2>
+                  <p>
+                    A trilha nasce do territorio e dos interesses que as criancas trazem. Primeiro escolha
+                    a porta, depois marque os temas que podem virar pistas narrativas.
+                  </p>
+                </div>
+                <figure className="ecosystem-figure" data-motion-item>
+                  <img src="/images/erm-ecosystem-map.jpg" alt="Crianças investigando territórios rurais e urbanos" />
+                </figure>
               </div>
 
               <div className="gateway-grid">
