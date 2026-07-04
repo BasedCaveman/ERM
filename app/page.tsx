@@ -27,8 +27,8 @@ import {
 import { animate, stagger } from 'animejs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { content } from '../lib/content';
+import { getInterestOptionsForTrack, getVariantForInterests, journeyProfiles, type TrackId } from '../lib/journeys';
 
-type TrackId = 'rural-kids' | 'urban-kids' | 'rural-youth' | 'urban-youth';
 type ViewId = 'gateway' | 'map' | 'mission' | 'support' | 'fieldbook' | 'radio' | 'mural' | 'facilitator';
 
 type FieldDraft = {
@@ -86,47 +86,6 @@ type NarrativeSeed = {
 
 const STORAGE_KEY = 'erm:v2:workspace';
 
-const trackNames: Record<TrackId, string> = {
-  'rural-kids': 'Oficina da Vila',
-  'urban-kids': 'Missao Bairro',
-  'rural-youth': 'Laboratorio das Colinas',
-  'urban-youth': 'Cidade Infinita',
-};
-
-const trackIntros: Record<TrackId, string> = {
-  'rural-kids':
-    'Criancas pequenas investigam feira, horta, familia, animais, clima e vizinhanca com linguagem concreta.',
-  'urban-kids':
-    'Criancas pequenas exploram escola, bairro, praca, cantina, transporte e pequenos combinados comunitarios.',
-  'rural-youth':
-    'Jovens investigam producao local, turismo, logistica, clima, comercio e servicos comunitarios.',
-  'urban-youth':
-    'Jovens trabalham mobilidade, consumo, cultura, estudos, servicos digitais locais e vida de bairro.',
-};
-
-const trackWorlds: Record<TrackId, { artifact: string; invitation: string; palette: string }> = {
-  'rural-kids': {
-    artifact: 'Mapa de sementes',
-    invitation: 'Entrar pela feira, pela horta e pelos pequenos misterios do campo.',
-    palette: 'Campo, feira, chuva, animais e familia',
-  },
-  'urban-kids': {
-    artifact: 'Mapa do bairro',
-    invitation: 'Investigar escola, praca, cantina e combinados que melhoram a vida perto de casa.',
-    palette: 'Bairro, escola, praca, transporte e vizinhanca',
-  },
-  'rural-youth': {
-    artifact: 'Mapa das colinas',
-    invitation: 'Conectar producao local, turismo, clima, logistica e redes comunitarias.',
-    palette: 'Producao, cachoeira, ferramentas, clima e comercio local',
-  },
-  'urban-youth': {
-    artifact: 'Mapa da cidade infinita',
-    invitation: 'Explorar mobilidade, estudos, cultura, consumo e servicos digitais locais.',
-    palette: 'Mobilidade, cultura, estudos, consumo e tecnologia',
-  },
-};
-
 const regions = [
   { title: 'Oficina', icon: Hammer, text: 'Prototipos pequenos, materiais simples e testes rapidos.' },
   { title: 'Caderno', icon: BookOpen, text: 'Notas, desenhos, fotos autorizadas, audios e hipoteses.' },
@@ -144,21 +103,6 @@ const views = [
   { id: 'mural', label: 'Mural', icon: MessageSquareText },
   { id: 'facilitator', label: 'Facilitador', icon: UserRoundCheck },
 ] satisfies Array<{ id: ViewId; label: string; icon: typeof Map }>;
-
-const interestOptions = [
-  'Animais',
-  'Horta',
-  'Jogos',
-  'Desenho',
-  'Tecnologia',
-  'Musica',
-  'Feira',
-  'Natureza',
-  'Comida',
-  'Esporte',
-  'Historias',
-  'Cuidar de pessoas',
-];
 
 const narrativeSeeds: Record<TrackId, NarrativeSeed[]> = {
   'rural-kids': [
@@ -392,22 +336,29 @@ function prefersReducedMotion() {
 }
 
 function buildNarrative(trackId: TrackId, interests: string[], mission: { phase: number; title: string; goal: string }) {
+  const profile = journeyProfiles[trackId];
+  const variant = getVariantForInterests(trackId, interests);
   const seeds = narrativeSeeds[trackId];
   const seed = seeds[(mission.phase - 1) % seeds.length];
   const moment = phaseMoments.find((item) => mission.phase <= item.max) ?? phaseMoments[phaseMoments.length - 1];
   const interestLine = interests.length ? interests.join(', ') : 'curiosidades que a turma escolher';
-  const firstInterest = interests[0] ?? 'uma pista do territorio';
-  const secondInterest = interests[1] ?? 'a rotina das pessoas';
+  const firstInterest = interests[0] ?? variant.interests[0] ?? 'uma pista do territorio';
+  const secondInterest = interests[1] ?? variant.interests[1] ?? 'a rotina das pessoas';
+  const variantOutput = variant.output.replace(/\.$/, '');
 
   return {
     interestLine,
-    hook: `Hoje a ${trackNames[trackId]} entra em ${seed.scene}. A turma usa ${interestLine} para ${moment.verb} e transformar ${mission.goal} em ${moment.output}.`,
+    hook: `Hoje a ${profile.name} entra em ${seed.scene}. A turma usa ${interestLine} para ${moment.verb} e transformar ${mission.goal} em ${moment.output}.`,
     scene: seed.scene,
     tension: seed.tension,
-    guideQuestion: `Onde ${firstInterest} encontra ${secondInterest} no territorio, e que problema real aparece quando olhamos com calma?`,
+    guideQuestion:
+      interests.length > 0
+        ? `Onde ${firstInterest} encontra ${secondInterest} no territorio, e que problema real aparece quando olhamos com calma?`
+        : variant.question,
     evidencePrompt: `Tragam uma evidencia pequena: uma frase de ${seed.helper}, um desenho, uma foto autorizada ou um teste que mostre ${seed.tension}.`,
-    prototypePrompt: `Construam ${seed.artifact}. Depois comparem com a evidencia antes de pedir ajuda da IA.`,
+    prototypePrompt: `Construam uma versao pequena: ${variantOutput || seed.artifact}. Depois comparem com a evidencia antes de pedir ajuda da IA.`,
     nextTest: `Testar a ideia com ${seed.helper} e registrar o que mudou no pensamento do grupo.`,
+    variant,
   };
 }
 
@@ -429,6 +380,8 @@ export default function Home() {
   const progressRef = useRef<HTMLDivElement>(null);
 
   const track = useMemo(() => content.tracks.find((item) => item.id === trackId)!, [trackId]);
+  const trackProfile = journeyProfiles[trackId];
+  const interestOptions = useMemo(() => getInterestOptionsForTrack(trackId), [trackId]);
   const mission = track.missions.find((item) => item.phase === activePhase) ?? track.missions[0];
   const complete = track.missions.filter((item) => done[item.id]).length;
   const pct = Math.round((complete / track.missions.length) * 100);
@@ -443,6 +396,7 @@ export default function Home() {
         ? 'Prioridade humana: acolher roadblocks antes de acelerar a turma.'
         : 'Boa hora para escolher uma evidencia antiga e planejar o proximo teste.';
   const narrative = buildNarrative(trackId, interests, mission);
+  const activeVariant = narrative.variant;
   const pilotIdentity = [
     pilotProfile.school || 'Escola/rede a definir',
     pilotProfile.className || 'turma a definir',
@@ -453,12 +407,13 @@ export default function Home() {
   const checkedSafeguards = safeguardItems.filter((item) => pilotProfile.safeguards[item.id]);
   const missingSafeguards = safeguardItems.length - checkedSafeguards.length;
   const pilotReport = [
-    `Relatorio de piloto ERM - ${trackNames[trackId]}`,
+    `Relatorio de piloto ERM - ${trackProfile.name}`,
     `Identificacao: ${pilotIdentity}`,
     `Facilitador: ${pilotProfile.facilitator || 'a definir'}`,
     `Territorio observado: ${pilotProfile.territory || 'a definir'}`,
     `Janela do piloto: ${pilotProfile.window || 'a definir'}`,
-    `Trilha: ${track.pt} (${track.age} anos, ${track.context === 'rural' ? 'rural' : 'urbano'})`,
+    `Trilha: ${trackProfile.name} (${track.age} anos, ${track.context === 'rural' ? 'rural' : 'urbano'})`,
+    `Variante sugerida: ${activeVariant.title}`,
     `Interesses declarados: ${narrative.interestLine}`,
     `Missao atual: ${String(mission.phase).padStart(2, '0')} - ${mission.title}`,
     `Gancho narrativo: ${narrative.hook}`,
@@ -505,7 +460,7 @@ export default function Home() {
       if (raw) {
         const saved = JSON.parse(raw) as SavedWorkspace;
 
-        if (saved.trackId && saved.trackId in trackNames) {
+        if (saved.trackId && saved.trackId in journeyProfiles) {
           setTrackId(saved.trackId);
         }
 
@@ -764,7 +719,7 @@ export default function Home() {
                     setView('gateway');
                   }}
                 >
-                  <span>{trackNames[id]}</span>
+                  <span>{journeyProfiles[id].name}</span>
                   <small>
                     {item.age} anos · {item.context === 'rural' ? 'rural' : 'urbano'}
                   </small>
@@ -817,13 +772,17 @@ export default function Home() {
             <section className="map-view" data-motion-surface>
               <div className="map-hero">
                 <div className="section-head">
-                  <p className="eyebrow">{trackNames[trackId]}</p>
-                  <h2>{track.pt}</h2>
-                  <p>{trackIntros[trackId]}</p>
+                  <p className="eyebrow">{trackProfile.name}</p>
+                  <h2>{trackProfile.name}</h2>
+                  <p>{trackProfile.intro}</p>
                   <p className="narrative-line">{narrative.hook}</p>
                 </div>
-                <figure className="ecosystem-figure" data-motion-item>
-                  <img src="/images/erm-ecosystem-map.jpg" alt="Mapa ilustrado do ecossistema ERM" />
+                <figure className="ecosystem-figure journey-figure" data-motion-item>
+                  <img src={trackProfile.hero} alt={trackProfile.heroAlt} />
+                  <figcaption>
+                    <strong>{activeVariant.title}</strong>
+                    <span>{activeVariant.question}</span>
+                  </figcaption>
                 </figure>
               </div>
 
@@ -1026,30 +985,43 @@ export default function Home() {
                     a porta, depois marque os temas que podem virar pistas narrativas.
                   </p>
                 </div>
-                <figure className="ecosystem-figure" data-motion-item>
-                  <img src="/images/erm-ecosystem-map.jpg" alt="Crianças investigando territórios rurais e urbanos" />
+                <figure className="ecosystem-figure journey-figure" data-motion-item>
+                  <img src={trackProfile.hero} alt={trackProfile.heroAlt} />
+                  <figcaption>
+                    <strong>{trackProfile.name}</strong>
+                    <span>
+                      {trackProfile.age} anos · {trackProfile.contextLabel} · linguagem: {trackProfile.language}
+                    </span>
+                  </figcaption>
                 </figure>
               </div>
 
               <div className="gateway-grid">
-                {(Object.keys(trackNames) as TrackId[]).map((id) => (
-                  <article className={`gateway-card ${trackId === id ? 'selected' : ''}`} data-motion-item key={id}>
-                    <span className="gateway-artifact">{trackWorlds[id].artifact}</span>
-                    <h3>{trackNames[id]}</h3>
-                    <p>{trackWorlds[id].invitation}</p>
-                    <small>{trackWorlds[id].palette}</small>
-                    <button className="primary-action compact" type="button" onClick={() => enterTrack(id)}>
-                      <Compass size={18} />
-                      Entrar
-                    </button>
-                  </article>
-                ))}
+                {(Object.keys(journeyProfiles) as TrackId[]).map((id) => {
+                  const profile = journeyProfiles[id];
+
+                  return (
+                    <article className={`gateway-card ${trackId === id ? 'selected' : ''}`} data-motion-item key={id}>
+                      <img src={profile.hero} alt={profile.heroAlt} />
+                      <span className="gateway-artifact">{profile.artifact}</span>
+                      <h3>{profile.name}</h3>
+                      <p>{profile.invitation}</p>
+                      <small>
+                        {profile.age} anos · {profile.contextLabel} · {profile.palette}
+                      </small>
+                      <button className="primary-action compact" type="button" onClick={() => enterTrack(id)}>
+                        <Compass size={18} />
+                        Entrar
+                      </button>
+                    </article>
+                  );
+                })}
               </div>
 
               <div className="interest-panel" data-motion-item>
                 <div>
                   <p className="eyebrow">Interesses da turma</p>
-                  <h3>O que pode puxar a historia?</h3>
+                  <h3>O que pode puxar a historia em {trackProfile.shortName}?</h3>
                 </div>
                 <div className="interest-grid">
                   {interestOptions.map((interest) => (
@@ -1065,11 +1037,28 @@ export default function Home() {
                 </div>
                 <div className="story-preview">
                   <WandSparkles size={20} />
-                  <p>{narrative.hook}</p>
+                  <p>
+                    <strong>{activeVariant.title}.</strong> {narrative.hook}
+                  </p>
                 </div>
                 <div className="story-brief">
                   <span>{narrative.guideQuestion}</span>
                   <span>{narrative.prototypePrompt}</span>
+                </div>
+                <div className="variant-grid" aria-label="Variantes sugeridas para a trilha">
+                  {trackProfile.variants.map((variant) => {
+                    const Icon = variant.icon;
+                    const selected = variant.title === activeVariant.title;
+
+                    return (
+                      <article className={`variant-card ${selected ? 'selected' : ''}`} key={variant.title}>
+                        <Icon size={20} />
+                        <span>{variant.title}</span>
+                        <p>{variant.question}</p>
+                        <small>{variant.output}</small>
+                      </article>
+                    );
+                  })}
                 </div>
               </div>
             </section>
@@ -1487,7 +1476,7 @@ export default function Home() {
                   : sharedEntries.map((entry) => (
                       <article className="mural-note" data-motion-item key={entry.id}>
                         <span className="note-kicker">
-                          {trackNames[entry.trackId]} · Missao {String(entry.phase).padStart(2, '0')}
+                          {journeyProfiles[entry.trackId].name} · Missao {String(entry.phase).padStart(2, '0')}
                         </span>
                         <h3>{entry.missionTitle}</h3>
                         <p>{entry.observation || entry.evidence}</p>
