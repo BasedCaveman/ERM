@@ -28,6 +28,7 @@ import { animate, stagger } from 'animejs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { content } from '../lib/content';
 import { getInterestOptionsForTrack, getVariantForInterests, journeyProfiles, type TrackId } from '../lib/journeys';
+import { getConceptDeckForTrack } from '../lib/support-concepts';
 
 type ViewId = 'gateway' | 'map' | 'mission' | 'support' | 'fieldbook' | 'radio' | 'mural' | 'facilitator';
 
@@ -382,6 +383,7 @@ export default function Home() {
   const track = useMemo(() => content.tracks.find((item) => item.id === trackId)!, [trackId]);
   const trackProfile = journeyProfiles[trackId];
   const interestOptions = useMemo(() => getInterestOptionsForTrack(trackId), [trackId]);
+  const conceptDeck = useMemo(() => getConceptDeckForTrack(trackId), [trackId]);
   const mission = track.missions.find((item) => item.phase === activePhase) ?? track.missions[0];
   const complete = track.missions.filter((item) => done[item.id]).length;
   const pct = Math.round((complete / track.missions.length) * 100);
@@ -927,10 +929,10 @@ export default function Home() {
             <section className="support-view" data-motion-surface>
               <div className="section-head">
                 <p className="eyebrow">Conteudos de apoio</p>
-                <h2>Cartas para destravar a jornada</h2>
+                <h2>Cartas para deduzir conceitos</h2>
                 <p>
-                  Apoios inspirados na vault: progresso cooperativo, cartas de ajuda, equilibrio
-                  tela-mundo e IA como estagiaria organizada.
+                  A turma pratica primeiro: observa, escuta, testa e decide. O nome adulto do conceito
+                  aparece depois, como apoio do facilitador.
                 </p>
               </div>
 
@@ -971,6 +973,47 @@ export default function Home() {
                   </article>
                 ))}
               </div>
+
+              <section className="concept-panel" data-motion-item>
+                <div className="split-heading">
+                  <Lightbulb size={22} />
+                  <div>
+                    <p className="eyebrow">Conceitos invisiveis</p>
+                    <h3>Aprender fazendo, nomear depois</h3>
+                  </div>
+                </div>
+
+                <div className="concept-grid">
+                  {conceptDeck.map((concept) => {
+                    const Icon = concept.icon;
+
+                    return (
+                      <article className="concept-card" key={concept.id}>
+                        <div className="concept-card-head">
+                          <Icon size={20} />
+                          <span>{concept.kidTitle}</span>
+                        </div>
+                        <p>{concept.moment}</p>
+                        <div className="concept-move">
+                          <strong>Movimento de campo</strong>
+                          <span>{concept.fieldMove}</span>
+                        </div>
+                        <div className="concept-move">
+                          <strong>Pergunta para deduzir</strong>
+                          <span>{concept.deductionQuestion}</span>
+                        </div>
+                        <small>{concept.evidence}</small>
+                        <details>
+                          <summary>Nome para o facilitador</summary>
+                          <p>
+                            <strong>{concept.adultName}:</strong> {concept.facilitatorReveal}
+                          </p>
+                        </details>
+                      </article>
+                    );
+                  })}
+                </div>
+              </section>
             </section>
           )}
 

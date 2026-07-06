@@ -647,6 +647,99 @@ p {
   line-height: 1.35;
 }
 
+.concept-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.92);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.concept-card {
+  display: grid;
+  gap: 12px;
+  min-height: 330px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+}
+
+.concept-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.concept-card-head svg {
+  flex: 0 0 auto;
+  color: var(--forest);
+}
+
+.concept-card-head span {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.concept-card p {
+  margin-bottom: 0;
+}
+
+.concept-move {
+  display: grid;
+  gap: 5px;
+  border-radius: 8px;
+  background: #f7f1e6;
+  padding: 10px;
+}
+
+.concept-move strong {
+  color: var(--clay);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.concept-move span {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.concept-card small {
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.concept-card details {
+  align-self: end;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.concept-card summary {
+  color: var(--forest);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.concept-card details p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .notebook-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -1373,6 +1466,7 @@ p {
   .safeguard-grid,
   .rules-grid,
   .ecosystem-signals,
+  .concept-grid,
   .variant-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1430,6 +1524,7 @@ p {
   .rules-grid,
   .mural-grid,
   .ecosystem-signals,
+  .concept-grid,
   .phase-map,
   .narrative-grid,
   .story-brief,
