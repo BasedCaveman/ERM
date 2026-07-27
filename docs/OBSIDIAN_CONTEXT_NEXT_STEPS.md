@@ -71,7 +71,7 @@ Enquanto monetizacao nao estiver decidida, o caminho mais seguro e construir pro
 
 ## Riscos e guardrails
 
-- Uso dos manuais da Junior Achievement precisa de revisao juridica antes de publicar conteudo literal.
+- O conteudo do ERM e autoral. A experiencia dialoga com repertorios da trajetoria de Pedro, inclusive sua participacao no time que produziu conteudo para a Junior Achievement, mas nao copia o modelo nem utiliza textos originarios das apostilas.
 - Fotos, audios, desenhos e relatos de criancas exigem autorizacao e politica clara de privacidade.
 - A IA nao deve incentivar dependencia nem responder pelo grupo.
 - A experiencia mobile/PWA precisa continuar sendo primeira classe, com controles simples, leitura confortavel e registro rapido em campo.

@@ -5,8 +5,10 @@ Complemento operacional: `docs/OBSIDIAN_CONTEXT_NEXT_STEPS.md` consolida as nota
 ## Princípio central
 A plataforma não ensina a criança a apertar botão. Ela ensina a perceber necessidades, conversar com pessoas, imaginar soluções, construir protótipos pequenos, testar e melhorar.
 
-## Estrutura herdada dos manuais
-A jornada original foi preservada em 14 fases: Largada; O que é empreender; Simulador; Desafios e times; Empatia; Insights; Ideias; Protótipo; Canvas; Testes; Mutirão; Preparação da apresentação; Apresentação; Próximos passos.
+## Estrutura autoral da jornada
+A jornada do ERM organiza a experiência em 14 fases próprias: Largada; O que é empreender; Simulador; Desafios e times; Empatia; Insights; Ideias; Protótipo; Canvas; Testes; Mutirão; Preparação da apresentação; Apresentação; Próximos passos.
+
+Pedro participou do time que produziu conteúdo para a Junior Achievement. Esse trabalho integra sua trajetória e seu repertório pedagógico, mas o ERM não copia o modelo da JA nem utiliza textos originários das apostilas.
 
 ## Quatro trilhas
 1. 7 a 10 anos, zona rural: linguagem concreta, feira, horta, família, animais, clima, pequenos comércios.
