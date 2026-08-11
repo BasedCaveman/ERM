@@ -131,6 +131,16 @@ p {
   border: 1px solid var(--line);
   border-radius: 8px;
   cursor: pointer;
+  transition: transform 160ms ease-out, border-color 180ms ease-out, background-color 180ms ease-out;
+}
+
+.track-button:active,
+.view-tabs button:active,
+.phase-node:active,
+.primary-action:active,
+.icon-action:active,
+.text-action:active {
+  transform: scale(0.98);
 }
 
 .track-button {
@@ -332,6 +342,33 @@ p {
   color: var(--forest);
 }
 
+.chapter-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.chapter-card::after {
+  position: absolute;
+  right: -18px;
+  bottom: -28px;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: rgba(217, 157, 52, 0.12);
+  content: '';
+}
+
+.chapter-card small {
+  color: var(--clay);
+  font-weight: 900;
+}
+
+.chapter-icon {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
 .phase-map {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -405,6 +442,103 @@ p {
 
 .task-card.strong {
   background: var(--paper-strong);
+}
+
+.dual-guide {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.child-guide,
+.facilitator-guide {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.child-guide {
+  background: linear-gradient(145deg, #fff8dc, #fffdf7);
+}
+
+.facilitator-guide {
+  background: linear-gradient(145deg, #e7f2e9, #fffdf7);
+}
+
+.guide-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guide-heading h3,
+.guide-heading p {
+  margin-bottom: 0;
+}
+
+.guide-avatar {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--paper-strong);
+  font-size: 26px;
+}
+
+.evidence-ticket {
+  display: grid;
+  gap: 4px;
+  border: 2px dashed rgba(185, 93, 65, 0.45);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+  transform-origin: center;
+}
+
+.evidence-ticket strong {
+  color: var(--clay);
+}
+
+.thermometer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.thermometer span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.facilitator-guide details {
+  border-top: 1px solid rgba(37, 111, 90, 0.2);
+  padding-top: 10px;
+}
+
+.facilitator-guide summary {
+  color: var(--forest);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.facilitator-guide details p {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+
+.single-journey {
+  grid-template-columns: minmax(0, 680px) !important;
 }
 
 .narrative-panel {
@@ -1458,6 +1592,7 @@ p {
 
   .map-grid,
   .gateway-grid,
+  .dual-guide,
   .mission-layout,
   .fieldbook-layout,
   .support-deck,
@@ -1511,6 +1646,7 @@ p {
   .map-hero,
   .map-grid,
   .gateway-grid,
+  .dual-guide,
   .mission-layout,
   .fieldbook-layout,
   .support-layout,
@@ -1562,5 +1698,16 @@ p {
   .roadblock-form .primary-action {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

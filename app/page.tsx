@@ -8,7 +8,6 @@ import {
   ClipboardList,
   Compass,
   FileText,
-  Hammer,
   Lightbulb,
   Map,
   MessageSquareText,
@@ -21,7 +20,6 @@ import {
   Sparkles,
   Trash2,
   UserRoundCheck,
-  Users,
   WandSparkles,
 } from 'lucide-react';
 import { animate, stagger } from 'animejs';
@@ -29,6 +27,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { content } from '../lib/content';
 import { getInterestOptionsForTrack, getVariantForInterests, journeyProfiles, type TrackId } from '../lib/journeys';
 import { getConceptDeckForTrack } from '../lib/support-concepts';
+import { getRuralPhaseSupport, ruralChapters } from '../lib/rural-pilot';
 
 type ViewId = 'gateway' | 'map' | 'mission' | 'support' | 'fieldbook' | 'radio' | 'mural' | 'facilitator';
 
@@ -86,13 +85,6 @@ type NarrativeSeed = {
 };
 
 const STORAGE_KEY = 'erm:v2:workspace';
-
-const regions = [
-  { title: 'Oficina', icon: Hammer, text: 'Prototipos pequenos, materiais simples e testes rapidos.' },
-  { title: 'Caderno', icon: BookOpen, text: 'Notas, desenhos, fotos autorizadas, audios e hipoteses.' },
-  { title: 'Radio', icon: Radio, text: 'Chamados da comunidade, perguntas de roda e relatos curtos.' },
-  { title: 'Mural', icon: Users, text: 'Descobertas dos times viram patrimonio compartilhado.' },
-];
 
 const views = [
   { id: 'gateway', label: 'Entrada', icon: Compass },
@@ -398,6 +390,7 @@ export default function Home() {
         ? 'Prioridade humana: acolher roadblocks antes de acelerar a turma.'
         : 'Boa hora para escolher uma evidencia antiga e planejar o proximo teste.';
   const narrative = buildNarrative(trackId, interests, mission);
+  const phaseSupport = getRuralPhaseSupport(activePhase);
   const activeVariant = narrative.variant;
   const pilotIdentity = [
     pilotProfile.school || 'Escola/rede a definir',
@@ -462,9 +455,7 @@ export default function Home() {
       if (raw) {
         const saved = JSON.parse(raw) as SavedWorkspace;
 
-        if (saved.trackId && saved.trackId in journeyProfiles) {
-          setTrackId(saved.trackId);
-        }
+        setTrackId('rural-kids');
 
         if (typeof saved.activePhase === 'number' && saved.activePhase >= 1 && saved.activePhase <= 14) {
           setActivePhase(saved.activePhase);
@@ -528,7 +519,7 @@ export default function Home() {
     }
 
     const surface = root.querySelector('[data-motion-surface]');
-    const items = root.querySelectorAll('[data-motion-item]');
+    const anchors = root.querySelectorAll('[data-motion-anchor]');
     const surfaceAnimation = surface
       ? animate(surface, {
           duration: 280,
@@ -537,19 +528,19 @@ export default function Home() {
           y: [8, 0],
         })
       : null;
-    const itemAnimation = items.length
-      ? animate(items, {
-          delay: stagger(28),
-          duration: 260,
+    const anchorAnimation = anchors.length
+      ? animate(anchors, {
+          delay: stagger(45),
+          duration: 300,
           ease: 'out(2)',
           opacity: [0, 1],
-          y: [10, 0],
+          y: [8, 0],
         })
       : null;
 
     return () => {
       surfaceAnimation?.revert();
-      itemAnimation?.revert();
+      anchorAnimation?.revert();
     };
   }, [activePhase, hasHydrated, motionSignal, trackId, view]);
 
@@ -574,6 +565,29 @@ export default function Home() {
       animation.revert();
     };
   }, [complete, hasHydrated]);
+
+  useEffect(() => {
+    if (!hasHydrated || prefersReducedMotion() || !done[mission.id]) {
+      return;
+    }
+
+    const ticket = mainstageRef.current?.querySelector('[data-evidence-ticket]');
+
+    if (!ticket) {
+      return;
+    }
+
+    const animation = animate(ticket, {
+      duration: 360,
+      ease: 'out(4)',
+      scale: [0.97, 1],
+      rotate: [-0.6, 0],
+    });
+
+    return () => {
+      animation.revert();
+    };
+  }, [done, hasHydrated, mission.id]);
 
   function updateFieldDraft(field: keyof FieldDraft, value: string | boolean) {
     setFieldDraft((draft) => ({ ...draft, [field]: value }));
@@ -709,25 +723,10 @@ export default function Home() {
           </div>
 
           <div className="track-list">
-            {content.tracks.map((item) => {
-              const id = item.id as TrackId;
-              return (
-                <button
-                  className={`track-button ${trackId === id ? 'selected' : ''}`}
-                  key={item.id}
-                  onClick={() => {
-                    setTrackId(id);
-                    setActivePhase(1);
-                    setView('gateway');
-                  }}
-                >
-                  <span>{journeyProfiles[id].name}</span>
-                  <small>
-                    {item.age} anos · {item.context === 'rural' ? 'rural' : 'urbano'}
-                  </small>
-                </button>
-              );
-            })}
+            <button className="track-button selected" type="button" onClick={() => setView('gateway')}>
+              <span>Oficina da Vila</span>
+              <small>Jornada-piloto completa · 7–10 anos · cidades rurais pequenas</small>
+            </button>
           </div>
 
           <div className="progress-panel">
@@ -779,7 +778,7 @@ export default function Home() {
                   <p>{trackProfile.intro}</p>
                   <p className="narrative-line">{narrative.hook}</p>
                 </div>
-                <figure className="ecosystem-figure journey-figure" data-motion-item>
+                <figure className="ecosystem-figure journey-figure" data-motion-anchor>
                   <img src={trackProfile.hero} alt={trackProfile.heroAlt} />
                   <figcaption>
                     <strong>{activeVariant.title}</strong>
@@ -789,16 +788,14 @@ export default function Home() {
               </div>
 
               <div className="map-grid">
-                {regions.map((region) => {
-                  const Icon = region.icon;
-                  return (
-                    <article className="region-card" data-motion-item key={region.title}>
-                      <Icon size={24} />
-                      <h3>{region.title}</h3>
-                      <p>{region.text}</p>
-                    </article>
-                  );
-                })}
+                {ruralChapters.map((chapter) => (
+                  <article className="region-card chapter-card" data-motion-item key={chapter.title}>
+                    <span className="chapter-icon" aria-hidden="true">{chapter.icon}</span>
+                    <small>Missões {chapter.phases}</small>
+                    <h3>{chapter.title}</h3>
+                    <p>{chapter.text}</p>
+                  </article>
+                ))}
               </div>
 
               <div className="phase-map" aria-label="Mapa de missoes">
@@ -826,9 +823,9 @@ export default function Home() {
             <section className="mission-view" data-motion-surface>
               <div className="mission-hero">
                 <div>
-                  <p className="eyebrow">Missao {String(mission.phase).padStart(2, '0')}</p>
+                  <p className="eyebrow">{phaseSupport.chapter} · Missao {String(mission.phase).padStart(2, '0')}</p>
                   <h2>{mission.title}</h2>
-                  <p>{mission.storyPt}</p>
+                  <p>{phaseSupport.childCall}</p>
                   <p className="narrative-line">{narrative.hook}</p>
                 </div>
                 <button
@@ -840,16 +837,59 @@ export default function Home() {
                 </button>
               </div>
 
+              <section className="dual-guide" data-motion-anchor>
+                <article className="child-guide">
+                  <div className="guide-heading">
+                    <span className="guide-avatar" aria-hidden="true">{phaseSupport.icon}</span>
+                    <div>
+                      <p className="eyebrow">Caderno da crianca</p>
+                      <h3>Seu movimento nesta missão</h3>
+                    </div>
+                  </div>
+                  <p>{phaseSupport.childMove}</p>
+                  <div className="evidence-ticket" data-evidence-ticket>
+                    <strong>Pista que fica</strong>
+                    <span>{phaseSupport.evidence}</span>
+                  </div>
+                  <div className="thermometer" aria-label="Como foi para mim">
+                    <span>🌞 Dei conta</span>
+                    <span>⛅ Precisei de ajuda</span>
+                    <span>🌧️ Quero tentar de outro jeito</span>
+                  </div>
+                </article>
+
+                <article className="facilitator-guide">
+                  <div className="guide-heading">
+                    <UserRoundCheck size={24} />
+                    <div>
+                      <p className="eyebrow">Guia do facilitador</p>
+                      <h3>{phaseSupport.duration} para abrir, fazer e colher</h3>
+                    </div>
+                  </div>
+                  <p>{phaseSupport.facilitatorGoal}</p>
+                  <details open>
+                    <summary>Preparar e perguntar</summary>
+                    <p><strong>Preparar:</strong> {phaseSupport.prepare}</p>
+                    <p><strong>Pergunta:</strong> {phaseSupport.ask}</p>
+                  </details>
+                  <details>
+                    <summary>Fique de olho</summary>
+                    <p>{phaseSupport.watch}</p>
+                    <p><strong>Evidencia comportamental:</strong> {phaseSupport.behavior}</p>
+                  </details>
+                </article>
+              </section>
+
               <div className="mission-layout">
                 <article className="task-card" data-motion-item>
                   <ClipboardList size={22} />
-                  <h3>Na tela</h3>
-                  <p>{mission.screenPt}</p>
+                  <h3>Pista no caderno</h3>
+                  <p>{phaseSupport.evidence}</p>
                 </article>
                 <article className="task-card strong" data-motion-item>
                   <Route size={22} />
-                  <h3>Fora da tela</h3>
-                  <p>{mission.offlinePt}</p>
+                  <h3>Movimento no território</h3>
+                  <p>{phaseSupport.childMove}</p>
                 </article>
                 <article className="task-card" data-motion-item>
                   <Bot size={22} />
@@ -1021,14 +1061,15 @@ export default function Home() {
             <section className="gateway-view" data-motion-surface>
               <div className="gateway-hero">
                 <div className="section-head">
-                  <p className="eyebrow">Entrada do ecossistema</p>
-                  <h2>Escolha uma porta de aventura</h2>
+                  <p className="eyebrow">Jornada-piloto · 7–10 anos</p>
+                  <h2>A vila inteira virou oficina</h2>
                   <p>
-                    A trilha nasce do territorio e dos interesses que as criancas trazem. Primeiro escolha
-                    a porta, depois marque os temas que podem virar pistas narrativas.
+                    Em cidades pequenas, a praca, a feira, a escola, a estrada, a oficina, os quintais e
+                    as pessoas que cuidam do lugar formam um mapa vivo. A turma escolhe uma pista e aprende
+                    a observar, escutar, fazer, testar e devolver algo util para a comunidade.
                   </p>
                 </div>
-                <figure className="ecosystem-figure journey-figure" data-motion-item>
+                <figure className="ecosystem-figure journey-figure" data-motion-anchor>
                   <img src={trackProfile.hero} alt={trackProfile.heroAlt} />
                   <figcaption>
                     <strong>{trackProfile.name}</strong>
@@ -1039,26 +1080,17 @@ export default function Home() {
                 </figure>
               </div>
 
-              <div className="gateway-grid">
-                {(Object.keys(journeyProfiles) as TrackId[]).map((id) => {
-                  const profile = journeyProfiles[id];
-
-                  return (
-                    <article className={`gateway-card ${trackId === id ? 'selected' : ''}`} data-motion-item key={id}>
-                      <img src={profile.hero} alt={profile.heroAlt} />
-                      <span className="gateway-artifact">{profile.artifact}</span>
-                      <h3>{profile.name}</h3>
-                      <p>{profile.invitation}</p>
-                      <small>
-                        {profile.age} anos · {profile.contextLabel} · {profile.palette}
-                      </small>
-                      <button className="primary-action compact" type="button" onClick={() => enterTrack(id)}>
-                        <Compass size={18} />
-                        Entrar
-                      </button>
-                    </article>
-                  );
-                })}
+              <div className="gateway-grid single-journey">
+                <article className="gateway-card selected" data-motion-item>
+                  <span className="gateway-artifact">{trackProfile.artifact}</span>
+                  <h3>Uma jornada inteira, quatro capítulos</h3>
+                  <p>{trackProfile.invitation}</p>
+                  <small>14 missões · criança e facilitador lado a lado · evidência no lugar de pontuação</small>
+                  <button className="primary-action compact" type="button" onClick={() => enterTrack('rural-kids')}>
+                    <Compass size={18} />
+                    Abrir o mapa da vila
+                  </button>
+                </article>
               </div>
 
               <div className="interest-panel" data-motion-item>

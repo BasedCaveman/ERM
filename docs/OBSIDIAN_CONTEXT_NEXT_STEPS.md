@@ -22,7 +22,7 @@ O produto vende para adultos, mas a experiencia precisa pertencer as criancas. A
 
 ## Decisoes de produto
 
-1. A entrada do ecossistema deve separar as quatro trilhas de forma ludica e clara:
+1. A entrada do piloto deve conduzir diretamente para a Oficina da Vila, jornada rural de 7 a 10 anos. As outras trilhas ficam como expansão futura, sem competir com a validação atual:
    - Oficina da Vila: 7 a 10 anos, contexto rural.
    - Missao Bairro: 7 a 10 anos, contexto urbano.
    - Laboratorio das Colinas: 12 a 14 anos, contexto rural.
@@ -99,7 +99,7 @@ Enquanto monetizacao nao estiver decidida, o caminho mais seguro e construir pro
 ### Depois do piloto
 
 1. Converter evidencias do piloto em caso de uso e prova social.
-2. Refinar as quatro trilhas com base em registros reais.
+2. Refinar as 14 fases da Oficina da Vila, o Caderno da Criança e o Guia do Facilitador com base em registros reais.
 3. Decidir modelo de monetizacao.
 4. Desenhar funil completo de produto.
 5. Planejar expansao para regioes, temporadas, eventos comunitarios e missoes recombinaveis.

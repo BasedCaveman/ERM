@@ -10,11 +10,16 @@ A jornada do ERM organiza a experiência em 14 fases próprias: Largada; O que �
 
 Pedro participou do time que produziu conteúdo para a Junior Achievement. Esse trabalho integra sua trajetória e seu repertório pedagógico, mas o ERM não copia o modelo da JA nem utiliza textos originários das apostilas.
 
-## Quatro trilhas
-1. 7 a 10 anos, zona rural: linguagem concreta, feira, horta, família, animais, clima, pequenos comércios.
-2. 7 a 10 anos, urbano: escola, bairro, praça, cantina, transporte, vizinhança.
-3. 12 a 14 anos, zona rural: turismo, produção local, logística, clima, comercialização, serviços comunitários.
-4. 12 a 14 anos, urbano: mobilidade, consumo, serviços digitais locais, cultura, organização de estudos.
+## Foco de validação atual
+
+O produto concentra a próxima rodada de campo em uma única jornada completa: **Oficina da Vila**, para crianças de 7 a 10 anos de cidades rurais pequenas, especialmente municípios com menos de 40 mil habitantes. Feira semanal, escola, praça, estrada, oficina, posto, rádio local, quintal, associação e produção familiar entram como partes conectadas do território — sem reduzir o rural à lavoura ou transformá-lo em caricatura.
+
+A jornada tem quatro capítulos: Abrir os olhos; Escutar a vila; Fazer e melhorar; Devolver para a comunidade. Cada uma das 14 fases possui duas camadas coordenadas: movimento e evidência para a criança; intenção, tempo, preparação, pergunta e comportamento observável para o facilitador. As outras três trilhas ficam preservadas como horizonte de expansão após essa validação.
+
+Materiais operacionais:
+
+- `docs/OFICINA_DA_VILA_CADERNO_DA_CRIANCA.md`
+- `docs/OFICINA_DA_VILA_GUIA_DO_FACILITADOR.md`
 
 ## Gamificação
 - Progresso por trilha.
