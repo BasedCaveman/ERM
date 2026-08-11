@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Compass,
+  Download,
   FileText,
   Lightbulb,
   Map,
@@ -17,10 +18,12 @@ import {
   RotateCcw,
   Route,
   Save,
+  Share2,
   Sparkles,
   Trash2,
   UserRoundCheck,
   WandSparkles,
+  X,
 } from 'lucide-react';
 import { animate, stagger } from 'animejs';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -29,7 +32,7 @@ import { getInterestOptionsForTrack, getVariantForInterests, journeyProfiles, ty
 import { getConceptDeckForTrack } from '../lib/support-concepts';
 import { getRuralPhaseSupport, ruralChapters } from '../lib/rural-pilot';
 
-type ViewId = 'gateway' | 'map' | 'mission' | 'support' | 'fieldbook' | 'radio' | 'mural' | 'facilitator';
+type ViewId = 'gateway' | 'map' | 'mission' | 'fieldbook' | 'mural';
 
 type FieldDraft = {
   kind: string;
@@ -77,6 +80,11 @@ type Roadblock = {
   createdAt: string;
 };
 
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+};
+
 type NarrativeSeed = {
   scene: string;
   tension: string;
@@ -85,16 +93,14 @@ type NarrativeSeed = {
 };
 
 const STORAGE_KEY = 'erm:v2:workspace';
+const INSTALL_BANNER_DISMISSED_KEY = 'erm:pwa-install-dismissed';
 
 const views = [
-  { id: 'gateway', label: 'Entrada', icon: Compass },
-  { id: 'map', label: 'Mapa', icon: Map },
-  { id: 'mission', label: 'Missao', icon: Route },
-  { id: 'support', label: 'Apoios', icon: Sparkles },
-  { id: 'fieldbook', label: 'Caderno', icon: BookOpen },
-  { id: 'radio', label: 'Radio', icon: Mic2 },
+  { id: 'gateway', label: 'Começar', icon: Compass },
+  { id: 'map', label: 'Meu caminho', icon: Map },
+  { id: 'mission', label: 'Missão de agora', icon: Route },
+  { id: 'fieldbook', label: 'Minhas pistas', icon: BookOpen },
   { id: 'mural', label: 'Mural', icon: MessageSquareText },
-  { id: 'facilitator', label: 'Facilitador', icon: UserRoundCheck },
 ] satisfies Array<{ id: ViewId; label: string; icon: typeof Map }>;
 
 const narrativeSeeds: Record<TrackId, NarrativeSeed[]> = {
@@ -369,6 +375,8 @@ export default function Home() {
   const [reportStatus, setReportStatus] = useState('');
   const [hasHydrated, setHasHydrated] = useState(false);
   const [motionSignal, setMotionSignal] = useState(0);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [showIosInstall, setShowIosInstall] = useState(false);
   const mainstageRef = useRef<HTMLElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
@@ -385,7 +393,7 @@ export default function Home() {
   const openRoadblocks = roadblocks.filter((item) => item.status === 'aberto').length;
   const pilotSignal =
     currentEntries.length === 0
-      ? 'Ainda falta a primeira evidencia para avaliar a jornada.'
+      ? 'Ainda falta a primeira evidencia para avaliar a trilha.'
       : openRoadblocks > 0
         ? 'Prioridade humana: acolher roadblocks antes de acelerar a turma.'
         : 'Boa hora para escolher uma evidencia antiga e planejar o proximo teste.';
@@ -486,6 +494,39 @@ export default function Home() {
     } finally {
       setHasHydrated(true);
     }
+  }, []);
+
+  useEffect(() => {
+    const navigatorWithStandalone = window.navigator as Navigator & { standalone?: boolean };
+    const installed = window.matchMedia('(display-mode: standalone)').matches || navigatorWithStandalone.standalone;
+    const dismissed = window.localStorage.getItem(INSTALL_BANNER_DISMISSED_KEY) === 'true';
+
+    if (installed || dismissed) {
+      return;
+    }
+
+    const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+
+    if (isIos) {
+      setShowIosInstall(true);
+    }
+
+    const captureInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as BeforeInstallPromptEvent);
+    };
+    const hideAfterInstall = () => {
+      setInstallPrompt(null);
+      setShowIosInstall(false);
+    };
+
+    window.addEventListener('beforeinstallprompt', captureInstallPrompt);
+    window.addEventListener('appinstalled', hideAfterInstall);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', captureInstallPrompt);
+      window.removeEventListener('appinstalled', hideAfterInstall);
+    };
   }, []);
 
   useEffect(() => {
@@ -642,16 +683,20 @@ export default function Home() {
   }
 
   function toggleInterest(interest: string) {
-    setInterests((current) =>
-      current.includes(interest) ? current.filter((item) => item !== interest) : [...current, interest],
-    );
+    setInterests((current) => {
+      if (current.includes(interest)) {
+        return current.filter((item) => item !== interest);
+      }
+
+      return current.length >= 2 ? [current[1], interest] : [...current, interest];
+    });
     setMotionSignal((signal) => signal + 1);
   }
 
   function enterTrack(id: TrackId) {
     setTrackId(id);
     setActivePhase(1);
-    setView('map');
+    setView('mission');
   }
 
   function addRoadblock(event: React.FormEvent<HTMLFormElement>) {
@@ -709,13 +754,55 @@ export default function Home() {
     }
   }
 
+  async function installPwa() {
+    if (!installPrompt) {
+      return;
+    }
+
+    await installPrompt.prompt();
+    const choice = await installPrompt.userChoice;
+
+    if (choice.outcome === 'accepted') {
+      setInstallPrompt(null);
+    }
+  }
+
+  function dismissInstallBanner() {
+    window.localStorage.setItem(INSTALL_BANNER_DISMISSED_KEY, 'true');
+    setInstallPrompt(null);
+    setShowIosInstall(false);
+  }
+
   return (
     <main className="shell">
+      {(installPrompt || showIosInstall) && (
+        <aside className="install-banner" aria-label="Instalar o aplicativo">
+          <div className="install-mark" aria-hidden="true">
+            <Download size={22} />
+          </div>
+          <div className="install-copy">
+            <strong>Leve a Trilha Nossa Terra com você</strong>
+            {showIosInstall ? (
+              <span><Share2 size={15} /> Toque em Compartilhar e depois em “Adicionar à Tela de Início”.</span>
+            ) : (
+              <span>Instale o aplicativo para abrir em tela cheia e acessar sua trilha mais facilmente.</span>
+            )}
+          </div>
+          {!showIosInstall && (
+            <button className="install-action" type="button" onClick={installPwa}>
+              Instalar
+            </button>
+          )}
+          <button className="install-close" type="button" aria-label="Fechar aviso de instalação" onClick={dismissInstallBanner}>
+            <X size={18} />
+          </button>
+        </aside>
+      )}
       <section className="workspace">
         <aside className="sidebar" aria-label="Navegacao do ecossistema">
           <div>
-            <p className="eyebrow">ERM V2</p>
-            <h1>Ecossistema vivo de aprendizagem</h1>
+            <p className="eyebrow">Brota!</p>
+            <h1>Ideias que começam onde a gente vive</h1>
             <p className="lede">
               Um mapa narrativo para observar sistemas, conversar com pessoas, criar hipoteses,
               prototipar e usar IA sem terceirizar autoria.
@@ -724,8 +811,8 @@ export default function Home() {
 
           <div className="track-list">
             <button className="track-button selected" type="button" onClick={() => setView('gateway')}>
-              <span>Oficina da Vila</span>
-              <small>Jornada-piloto completa · 7–10 anos · cidades rurais pequenas</small>
+              <span>Trilha Nossa Terra</span>
+              <small>14 missões · 7–10 anos · zona rural e cidades pequenas</small>
             </button>
           </div>
 
@@ -837,7 +924,7 @@ export default function Home() {
                 </button>
               </div>
 
-              <section className="dual-guide" data-motion-anchor>
+              <section className="child-mission-guide" data-motion-anchor>
                 <article className="child-guide">
                   <div className="guide-heading">
                     <span className="guide-avatar" aria-hidden="true">{phaseSupport.icon}</span>
@@ -858,26 +945,6 @@ export default function Home() {
                   </div>
                 </article>
 
-                <article className="facilitator-guide">
-                  <div className="guide-heading">
-                    <UserRoundCheck size={24} />
-                    <div>
-                      <p className="eyebrow">Guia do facilitador</p>
-                      <h3>{phaseSupport.duration} para abrir, fazer e colher</h3>
-                    </div>
-                  </div>
-                  <p>{phaseSupport.facilitatorGoal}</p>
-                  <details open>
-                    <summary>Preparar e perguntar</summary>
-                    <p><strong>Preparar:</strong> {phaseSupport.prepare}</p>
-                    <p><strong>Pergunta:</strong> {phaseSupport.ask}</p>
-                  </details>
-                  <details>
-                    <summary>Fique de olho</summary>
-                    <p>{phaseSupport.watch}</p>
-                    <p><strong>Evidencia comportamental:</strong> {phaseSupport.behavior}</p>
-                  </details>
-                </article>
               </section>
 
               <div className="mission-layout">
@@ -965,7 +1032,7 @@ export default function Home() {
             </section>
           )}
 
-          {view === 'support' && (
+          {false && (
             <section className="support-view" data-motion-surface>
               <div className="section-head">
                 <p className="eyebrow">Conteudos de apoio</p>
@@ -990,7 +1057,7 @@ export default function Home() {
 
                 <aside className="flow-panel" data-motion-item>
                   <div>
-                    <p className="eyebrow">Grafico da jornada</p>
+                    <p className="eyebrow">Grafico da trilha</p>
                     <h3>Da observacao ao impacto</h3>
                   </div>
                   <div className="flow-steps">
@@ -1061,12 +1128,11 @@ export default function Home() {
             <section className="gateway-view" data-motion-surface>
               <div className="gateway-hero">
                 <div className="section-head">
-                  <p className="eyebrow">Jornada-piloto · 7–10 anos</p>
-                  <h2>A vila inteira virou oficina</h2>
+                  <p className="eyebrow">Sua aventura começa aqui</p>
+                  <h2>Vamos descobrir uma pista da Nossa Terra?</h2>
                   <p>
-                    Em cidades pequenas, a praca, a feira, a escola, a estrada, a oficina, os quintais e
-                    as pessoas que cuidam do lugar formam um mapa vivo. A turma escolhe uma pista e aprende
-                    a observar, escutar, fazer, testar e devolver algo util para a comunidade.
+                    Você vai escolher algo que desperta curiosidade, começar pela primeira missão e guardar
+                    cada descoberta no seu caderno. Não precisa saber a resposta antes de começar.
                   </p>
                 </div>
                 <figure className="ecosystem-figure journey-figure" data-motion-anchor>
@@ -1080,23 +1146,26 @@ export default function Home() {
                 </figure>
               </div>
 
-              <div className="gateway-grid single-journey">
-                <article className="gateway-card selected" data-motion-item>
-                  <span className="gateway-artifact">{trackProfile.artifact}</span>
-                  <h3>Uma jornada inteira, quatro capítulos</h3>
-                  <p>{trackProfile.invitation}</p>
-                  <small>14 missões · criança e facilitador lado a lado · evidência no lugar de pontuação</small>
-                  <button className="primary-action compact" type="button" onClick={() => enterTrack('rural-kids')}>
-                    <Compass size={18} />
-                    Abrir o mapa da vila
-                  </button>
+              <div className="onboarding-path" aria-label="Como começar">
+                <article className="onboarding-step active">
+                  <span>1</span>
+                  <div><strong>Escolha uma curiosidade</strong><small>Marque uma ou duas coisas que você gosta de observar.</small></div>
+                </article>
+                <article className="onboarding-step">
+                  <span>2</span>
+                  <div><strong>Faça a missão de agora</strong><small>A tela mostra um movimento pequeno e possível.</small></div>
+                </article>
+                <article className="onboarding-step">
+                  <span>3</span>
+                  <div><strong>Guarde uma pista</strong><small>Desenhe, escreva ou registre o que descobriu.</small></div>
                 </article>
               </div>
 
-              <div className="interest-panel" data-motion-item>
+              <div className="interest-panel onboarding-choice" data-motion-item>
                 <div>
-                  <p className="eyebrow">Interesses da turma</p>
-                  <h3>O que pode puxar a historia em {trackProfile.shortName}?</h3>
+                  <p className="eyebrow">Passo 1 de 3</p>
+                  <h3>O que chama sua atenção por aí?</h3>
+                  <p>Escolha até duas opções. Se ainda não souber, pode começar mesmo assim.</p>
                 </div>
                 <div className="interest-grid">
                   {interestOptions.map((interest) => (
@@ -1116,24 +1185,21 @@ export default function Home() {
                     <strong>{activeVariant.title}.</strong> {narrative.hook}
                   </p>
                 </div>
-                <div className="story-brief">
-                  <span>{narrative.guideQuestion}</span>
-                  <span>{narrative.prototypePrompt}</span>
-                </div>
-                <div className="variant-grid" aria-label="Variantes sugeridas para a trilha">
-                  {trackProfile.variants.map((variant) => {
-                    const Icon = variant.icon;
-                    const selected = variant.title === activeVariant.title;
-
-                    return (
-                      <article className={`variant-card ${selected ? 'selected' : ''}`} key={variant.title}>
-                        <Icon size={20} />
-                        <span>{variant.title}</span>
-                        <p>{variant.question}</p>
-                        <small>{variant.output}</small>
-                      </article>
-                    );
-                  })}
+                <div className="onboarding-cta">
+                  <div>
+                    <small>Seu primeiro destino</small>
+                    <strong>Missão 01 · Mapa de pistas</strong>
+                  </div>
+                  <div className="onboarding-actions">
+                    <button className="primary-action" type="button" onClick={() => enterTrack('rural-kids')}>
+                      Começar minha primeira missão
+                      <Route size={18} />
+                    </button>
+                    <a className="workbook-download" href="/materials/trilha-nossa-terra-caderno-da-crianca.pdf" download>
+                      <Download size={17} />
+                      Baixar caderno para imprimir
+                    </a>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1143,7 +1209,7 @@ export default function Home() {
             <section className="fieldbook-view" data-motion-surface>
               <div className="section-head">
                 <p className="eyebrow">Caderno de campo</p>
-                <h2>Memoria viva da jornada</h2>
+                <h2>Memoria viva da trilha</h2>
                 <p>
                   Cada registro deve separar observacao, hipotese, evidencia, decisao e proximo teste.
                 </p>
@@ -1285,7 +1351,7 @@ export default function Home() {
             </section>
           )}
 
-          {view === 'radio' && (
+          {false && (
             <section className="radio-view" data-motion-surface>
               <div className="section-head">
                 <p className="eyebrow">Radio comunitaria</p>
@@ -1314,7 +1380,7 @@ export default function Home() {
             </section>
           )}
 
-          {view === 'facilitator' && (
+          {false && (
             <section className="facilitator-view" data-motion-surface>
               <div className="section-head">
                 <p className="eyebrow">Area do facilitador</p>

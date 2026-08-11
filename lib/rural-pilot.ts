@@ -1,6 +1,6 @@
 export type RuralPhaseSupport = {
   phase: number;
-  chapter: 'Abrir os olhos' | 'Escutar a vila' | 'Fazer e melhorar' | 'Devolver para a comunidade';
+  chapter: 'Abrir os olhos' | 'Escutar quem vive aqui' | 'Fazer e melhorar' | 'Devolver para a comunidade';
   icon: string;
   childCall: string;
   childMove: string;
@@ -18,10 +18,10 @@ export const ruralChapters = [
     title: 'Abrir os olhos',
     phases: '1–4',
     icon: '🔎',
-    text: 'A turma percebe que a vila guarda perguntas, saberes e pequenos desafios.',
+    text: 'A turma percebe que o lugar onde vive guarda perguntas, saberes e pequenos desafios.',
   },
   {
-    title: 'Escutar a vila',
+    title: 'Escutar quem vive aqui',
     phases: '5–7',
     icon: '👂',
     text: 'Palpites encontram pessoas reais, histórias locais e pistas que mudam a primeira ideia.',
@@ -36,7 +36,7 @@ export const ruralChapters = [
     title: 'Devolver para a comunidade',
     phases: '12–14',
     icon: '📻',
-    text: 'A descoberta volta para a vila em forma de história, demonstração e próximo combinado.',
+    text: 'A descoberta volta para a comunidade em forma de história, demonstração e próximo combinado.',
   },
 ] as const;
 
@@ -45,13 +45,13 @@ export const ruralPhaseSupport: RuralPhaseSupport[] = [
     phase: 1,
     chapter: 'Abrir os olhos',
     icon: '🗺️',
-    childCall: 'A vila tem pistas. Qual delas chama a nossa atenção?',
+    childCall: 'Nossa Terra tem pistas. Qual delas chama a nossa atenção?',
     childMove: 'Desenhe o caminho entre casa, escola e um lugar importante da comunidade. Marque algo que funciona bem e algo que desperta curiosidade.',
     evidence: 'Mapa afetivo com um lugar, uma pessoa e uma pergunta.',
     facilitatorGoal: 'Criar pertencimento e mostrar que o território já contém conhecimento e oportunidades de investigação.',
     duration: '45–60 min',
     prepare: 'Papel grande, lápis de cor, adesivos ou sementes secas para marcar lugares.',
-    ask: 'Que lugar você mostraria primeiro para alguém que chegou hoje à vila?',
+    ask: 'Que lugar você mostraria primeiro para alguém que chegou hoje por aqui?',
     watch: 'Não reduzir rural a lavoura. Acolher praça, comércio, escola, estrada, oficina, posto, rio, quintal e memória familiar.',
     behavior: 'Iniciativa: escolhe uma pista e explica por que vale olhar de novo.',
   },
@@ -59,7 +59,7 @@ export const ruralPhaseSupport: RuralPhaseSupport[] = [
     phase: 2,
     chapter: 'Abrir os olhos',
     icon: '🤲',
-    childCall: 'Quem faz a vila funcionar quando quase ninguém está olhando?',
+    childCall: 'Quem faz o lugar onde a gente vive funcionar quando quase ninguém está olhando?',
     childMove: 'Escolha uma pessoa que planta, cuida, conserta, vende, ensina, transporta ou organiza. Descubra qual ajuda ela entrega.',
     evidence: 'Retrato desenhado e frase “essa pessoa ajuda quando…”.',
     facilitatorGoal: 'Ampliar empreendedorismo para criação de valor e cuidado, sem antecipar empresa, lucro ou profissão.',
@@ -99,7 +99,7 @@ export const ruralPhaseSupport: RuralPhaseSupport[] = [
   },
   {
     phase: 5,
-    chapter: 'Escutar a vila',
+    chapter: 'Escutar quem vive aqui',
     icon: '👂',
     childCall: 'Antes de inventar, vamos escutar quem vive isso de verdade.',
     childMove: 'Prepare três perguntas curtas e converse com alguém da comunidade. Escute uma história sem completar a frase da pessoa.',
@@ -113,7 +113,7 @@ export const ruralPhaseSupport: RuralPhaseSupport[] = [
   },
   {
     phase: 6,
-    chapter: 'Escutar a vila',
+    chapter: 'Escutar quem vive aqui',
     icon: '🧺',
     childCall: 'Temos um balaio de pistas. Quais combinam? Qual delas contradiz as outras?',
     childMove: 'Separe cartões em “vimos”, “ouvimos”, “achávamos” e “ainda precisamos descobrir”.',
@@ -127,7 +127,7 @@ export const ruralPhaseSupport: RuralPhaseSupport[] = [
   },
   {
     phase: 7,
-    chapter: 'Escutar a vila',
+    chapter: 'Escutar quem vive aqui',
     icon: '🌱',
     childCall: 'Uma pista pode virar muitas ideias. Vamos plantar pelo menos três.',
     childMove: 'Crie três respostas pequenas: uma que usa quase nada, uma feita em mutirão e uma ideia inesperada. Escolha pela possibilidade de testar.',

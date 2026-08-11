@@ -28,16 +28,16 @@ export type JourneyProfile = {
 
 export const journeyProfiles: Record<TrackId, JourneyProfile> = {
   'rural-kids': {
-    name: 'Oficina da Vila',
-    shortName: 'Vila',
+    name: 'Nossa Terra',
+    shortName: 'Nossa Terra',
     age: '7-10',
-    contextLabel: 'vila e cidade rural pequena',
+    contextLabel: 'zona rural e cidade pequena',
     intro: 'Investigar a feira semanal, a escola, os quintais, as estradas, os pequenos comercios, os servicos e os saberes de uma cidade rural pequena.',
-    artifact: 'Mapa vivo da vila',
-    invitation: 'Abrir o mapa da vila, escolher uma pista e criar uma melhoria pequena com quem conhece o lugar.',
+    artifact: 'Mapa da Nossa Terra',
+    invitation: 'Abrir o mapa da Nossa Terra, escolher uma pista e criar uma melhoria pequena com quem conhece o lugar.',
     palette: 'Praca, feira, horta, chuva, oficina, estrada, radio e vizinhanca',
     language: 'reparar, prosear, combinar, experimentar, cuidar, trocar, medir, perguntar e mostrar',
-    hero: '/images/journeys/oficina-da-vila-mapa-v2.png',
+    hero: '/images/journeys/nossa-terra-mapa.png',
     heroAlt: 'Mapa ilustrado de uma pequena cidade rural brasileira com feira, escola, horta, oficina, comunidade e crianças investigadoras.',
     variants: [
       {
@@ -65,7 +65,7 @@ export const journeyProfiles: Record<TrackId, JourneyProfile> = {
         title: 'Oficina do clima',
         interests: ['Clima', 'Jogos', 'Tecnologia'],
         question: 'Como perceber sinais do tempo antes que atrapalhem a rotina?',
-        output: 'Diario do tempo, medidor simples ou mapa de sinais da vila.',
+        output: 'Diario do tempo, medidor simples ou mapa de sinais do lugar.',
         icon: CloudSun,
       },
     ],

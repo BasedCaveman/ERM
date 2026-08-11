@@ -24,14 +24,14 @@ O ERM nao deve ser tratado como um curso linear de empreendedorismo infantil. El
 2. Mapa vivo: a jornada aparece como um territorio com regioes, oficinas e construcoes desbloqueaveis.
 3. Missao cognitiva: cada encontro combina predicao, contradicao, dilema, criacao e reflexao.
 4. Loop offscreen: a tela aponta para uma acao no mundo real e recebe o registro de volta.
-5. Caderno de campo: desenhos, notas, fotos autorizadas, audios, hipoteses e decisoes viram memoria da jornada.
+5. Caderno de campo: desenhos, notas, fotos autorizadas, audios, hipoteses e decisoes viram memoria da trilha.
 6. Mural coletivo: descobertas dos grupos viram patrimonio compartilhado da turma.
 7. Facilitador IA: a IA pergunta, organiza e devolve espelhos; nao resolve o projeto.
 8. Economia simbolica: sementes, ferramentas e construcoes reconhecem colaboracao, escuta, teste e impacto.
 
 ## Trilhas atuais
 
-- Oficina da Vila: criancas de 7 a 10 anos em contexto rural.
+- Trilha Nossa Terra: criancas de 7 a 10 anos em contexto rural.
 - Missao Bairro: criancas de 7 a 10 anos em contexto urbano.
 - Laboratorio das Colinas: jovens de 12 a 14 anos em contexto rural.
 - Cidade Infinita: jovens de 12 a 14 anos em contexto urbano.
@@ -101,7 +101,7 @@ Regras de uso:
 ### Fase 3 - IA facilitadora
 
 - Prompt systemico.
-- Memoria da jornada.
+- Memoria da trilha.
 - Perguntas adaptativas.
 - Organizacao de evidencias.
 - Modo multimodal para imagem, audio e desenho.

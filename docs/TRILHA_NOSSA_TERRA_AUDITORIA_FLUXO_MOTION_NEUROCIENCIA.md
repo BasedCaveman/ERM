@@ -1,8 +1,8 @@
-# Oficina da Vila — auditoria de fluxo, motion e evidências de aprendizagem
+# Trilha Nossa Terra — auditoria de fluxo, motion e evidências de aprendizagem
 
 ## Decisão
 
-A jornada mantém um arco motivacional forte se alternar **exploração → tensão possível → evidência de realização → novo desafio**. O desafio não deve subir durante muitas fases seguidas sem uma colheita visível. A conquista também não pode ser apenas animação ou insígnia: precisa mostrar algo que a criança agora consegue observar, explicar, construir ou revisar.
+A trilha mantém um arco motivacional forte se alternar **exploração → tensão possível → evidência de realização → novo desafio**. O desafio não deve subir durante muitas fases seguidas sem uma colheita visível. A conquista também não pode ser apenas animação ou insígnia: precisa mostrar algo que a criança agora consegue observar, explicar, construir ou revisar.
 
 Esta auditoria usa três lentes diferentes, sem confundi-las:
 
@@ -14,7 +14,7 @@ Esta auditoria usa três lentes diferentes, sem confundi-las:
 
 | Fases | Função no arco | Desafio | Realização que sustenta o fluxo | Risco | Ajuste de facilitação |
 |---|---|---:|---|---|---|
-| 1–2 | Pertencimento e significado | baixo–médio | reconhecer lugares e pessoas que fazem a vila funcionar | fácil demais para crianças com repertório maior | permitir pistas menos óbvias e justificativa própria |
+| 1–2 | Pertencimento e significado | baixo–médio | reconhecer lugares e pessoas que fazem o lugar funcionar | fácil demais para crianças com repertório maior | permitir pistas menos óbvias e justificativa própria |
 | 3–4 | Incerteza segura e equipe | médio | decidir com pistas e cumprir um papel visível | voz mais rápida dominar | rodar papéis e reconhecer mudança de decisão |
 | 5 | Primeiro pico de exposição | alto | conseguir escutar e registrar uma surpresa real | ansiedade, privacidade, pergunta invasiva | ensaio, dupla, escolha de interlocutor e alternativa sem áudio/foto |
 | 6–7 | Colheita e nova autonomia | médio | organizar o balaio de pistas e escolher entre três ideias | fase 6 ficar abstrata | usar objetos/cestos no chão; fase 7 devolve jogo e escolha |
@@ -35,7 +35,7 @@ Cada encontro deve explicitar antes de começar:
 3. **Momento-âncora:** a ação que a criança lembrará e poderá explicar.
 4. **Processamento:** palpite anterior, pista nova e mudança de compreensão.
 5. **Mapa conectivo:** qual artefato anterior é recuperado e qual próxima fase ele alimenta.
-6. **Fator dia seguinte:** onde a criança pode reutilizar a postura fora da jornada.
+6. **Fator dia seguinte:** onde a criança pode reutilizar a postura fora da trilha.
 
 ## Onde a animação cabe
 
@@ -46,7 +46,7 @@ Cada encontro deve explicitar antes de começar:
 | Botões sem resposta tátil visual | `scale(0.98)` por 160 ms no toque | Confirma imediatamente a ação sem atrasar navegação frequente |
 | Motion tratado apenas no JavaScript | Regra CSS global para `prefers-reduced-motion` | Mantém a experiência acessível e previsível |
 
-Não animar texto durante leitura, navegação por teclado, todos os cartões de fase ou elementos sem mudança de estado. Possíveis extensões após teste: traço do caminho entre capítulos quando uma fase é concluída; carta “troca de rota” virando ao registrar mudança de hipótese; reunião cooperativa das pistas no mutirão. Todas precisam ser testadas com crianças, inclusive sem motion.
+Não animar texto durante leitura, navegação por teclado, todos os cartões de fase ou elementos sem mudança de estado. Possíveis extensões após teste: traço entre os trechos do caminho quando uma fase é concluída; carta “troca de rota” virando ao registrar mudança de hipótese; reunião cooperativa das pistas no mutirão. Todas precisam ser testadas com crianças, inclusive sem motion.
 
 ## Evidências de aprendizagem encontradas no acervo
 

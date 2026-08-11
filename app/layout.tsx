@@ -2,9 +2,9 @@ import './globals.css';
 import type { Metadata, Viewport } from 'next';
 
 export const metadata: Metadata = {
-  title: 'ERM - Ecossistema de Aprendizagem',
+  title: 'Brota! - Trilha Nossa Terra',
   description:
-    'PWA narrativo para criancas e jovens observarem o territorio, criarem prototipos e aprenderem com a comunidade.',
+    'Uma plataforma de aprendizagem para observar o lugar onde a gente vive, guardar pistas, criar e melhorar ideias.',
   manifest: '/manifest.json',
 };
 

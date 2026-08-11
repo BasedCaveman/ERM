@@ -1,8 +1,8 @@
-# Oficina da Vila — Guia do Facilitador
+# Trilha Nossa Terra — Guia do Facilitador
 
 ## Função deste guia
 
-Este material acompanha o [Caderno da Criança](./OFICINA_DA_VILA_CADERNO_DA_CRIANCA.md) fase a fase. A criança recebe cena, movimento e pista esperada. O facilitador recebe intenção pedagógica, tempo, preparação, pergunta de processamento, risco operacional e comportamento observável.
+Este material acompanha o [Caderno da Criança](./TRILHA_NOSSA_TERRA_CADERNO_DA_CRIANCA.md) fase a fase. A criança recebe cena, movimento e pista esperada. O facilitador recebe intenção pedagógica, tempo, preparação, pergunta de processamento, risco operacional e comportamento observável.
 
 O padrão combina três aprendizados do acervo, sem copiar seus textos ou modelos:
 
@@ -27,7 +27,7 @@ O padrão combina três aprendizados do acervo, sem copiar seus textos ou modelo
 3. **Colher — 10 a 20 min:** organizar a pista, comparar com o palpite e escolher o próximo teste.
 4. **Termômetro — 5 min:** 🌞 / ⛅ / 🌧️ com uma justificativa curta.
 
-Antes de avançar, o facilitador confirma três condições de fluxo: o desafio não parece impossível, a turma reconhece uma realização concreta e existe uma pista clara que conecta o encontro ao próximo. A auditoria completa está em [Fluxo, motion e evidências de aprendizagem](./OFICINA_DA_VILA_AUDITORIA_FLUXO_MOTION_NEUROCIENCIA.md).
+Antes de avançar, o facilitador confirma três condições de fluxo: o desafio não parece impossível, a turma reconhece uma realização concreta e existe uma pista clara que conecta o encontro ao próximo. A auditoria completa está em [Fluxo, motion e evidências de aprendizagem](./TRILHA_NOSSA_TERRA_AUDITORIA_FLUXO_MOTION_NEUROCIENCIA.md).
 
 ## Mapa das 14 fases
 
@@ -80,4 +80,4 @@ Não dizer “você é persistente” ou “você não tem iniciativa”. Descre
 - “Você mudou o protótipo depois de observar a pessoa usando.”
 - “Você explicou o limite do teste em vez de fingir que estava pronto.”
 
-O registro acompanha a jornada da turma e orienta a próxima intervenção; não cria ranking individual.
+O registro acompanha a trilha da turma e orienta a próxima intervenção; não cria ranking individual.

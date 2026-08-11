@@ -1,4 +1,4 @@
-# Oficina da Vila — Caderno da Criança
+# Trilha Nossa Terra — Caderno da Criança
 
 ## Para quem é
 
@@ -6,14 +6,14 @@ Crianças de 7 a 10 anos que vivem, estudam ou convivem em cidades rurais pequen
 
 ## A aventura
 
-A turma forma uma oficina de descobertas. Durante 14 missões, abre um mapa da vila, escolhe uma pista real, conversa com pessoas, constrói uma tentativa pequena, testa e devolve o aprendizado para a comunidade.
+A turma forma uma oficina de descobertas. Durante 14 missões, abre um mapa da Nossa Terra, escolhe uma pista real, conversa com pessoas, constrói uma tentativa pequena, testa e devolve o aprendizado para a comunidade.
 
 Não existe resposta pronta. Cada missão deixa uma **pista que fica**: desenho, fala autorizada, mapa, combinado, protótipo, teste ou decisão.
 
-## Os quatro capítulos
+## Os quatro trechos do caminho
 
 1. **Abrir os olhos — missões 1–4:** reparar no território, reconhecer quem cuida e formar a equipe.
-2. **Escutar a vila — missões 5–7:** conversar, separar palpite de pista e criar alternativas.
+2. **Escutar quem vive aqui — missões 5–7:** conversar, separar palpite de pista e criar alternativas.
 3. **Fazer e melhorar — missões 8–11:** construir, mapear o caminho, testar e trabalhar em mutirão.
 4. **Devolver para a comunidade — missões 12–14:** contar a história, abrir a oficina e escolher o próximo cuidado.
 
@@ -21,8 +21,8 @@ Não existe resposta pronta. Cada missão deixa uma **pista que fica**: desenho,
 
 | # | Missão | Chamado | Movimento | Pista que fica |
 |---:|---|---|---|---|
-| 1 | O mapa acorda | A vila tem pistas. Qual chama nossa atenção? | Desenhar o caminho entre casa, escola e um lugar importante | Mapa afetivo com lugar, pessoa e pergunta |
-| 2 | Quem faz acontecer | Quem faz a vila funcionar quando quase ninguém olha? | Escolher alguém que cuida, planta, conserta, vende, ensina, transporta ou organiza | Retrato e frase “essa pessoa ajuda quando…” |
+| 1 | O mapa acorda | Nossa Terra tem pistas. Qual chama nossa atenção? | Desenhar o caminho entre casa, escola e um lugar importante | Mapa afetivo com lugar, pessoa e pergunta |
+| 2 | Quem faz acontecer | Quem faz o lugar onde a gente vive funcionar quando quase ninguém olha? | Escolher alguém que cuida, planta, conserta, vende, ensina, transporta ou organiza | Retrato e frase “essa pessoa ajuda quando…” |
 | 3 | Jogo dos imprevistos | Choveu, a estrada mudou e a feira começa cedo. O que fazemos primeiro? | Jogar cartas de escolha e consequência | Decisão, motivo e mudança possível |
 | 4 | Cada pessoa segura uma parte | Quem cuida de perguntar, observar, desenhar, marcar o tempo e contar? | Distribuir e trocar papéis | Acordo do grupo |
 | 5 | Escuta de verdade | Antes de inventar, vamos ouvir quem vive isso | Preparar três perguntas e escutar sem completar a fala | Fala autorizada, desenho e surpresa |
@@ -52,7 +52,7 @@ Ao terminar cada missão, a criança escolhe uma leitura sem nota e explica por 
 - **Ficha Troca de rota:** uma ideia que mudou depois de uma pista.
 - **Ficha Cuidado:** algo que protege pessoas, animais, dados, materiais ou o lugar.
 
-## Voz da Oficina da Vila
+## Voz da Trilha Nossa Terra
 
-Usar frases curtas, concretas e respeitosas. Preferir “reparar”, “prosear”, “pista”, “combinado”, “mutirão”, “caminho”, “cuidado”, “tentativa” e “mostrar”. A vila inclui feira semanal, praça, escola, posto, rádio local, oficina, associação, pequenos comércios, estradas, quintais, produção familiar e deslocamentos. Nenhum desses elementos deve virar caricatura.
+Usar frases curtas, concretas e respeitosas. Preferir “reparar”, “prosear”, “pista”, “combinado”, “mutirão”, “caminho”, “cuidado”, “tentativa” e “mostrar”. Nossa Terra inclui feira semanal, praça, escola, posto, rádio local, oficina, associação, pequenos comércios, estradas, quintais, produção familiar e deslocamentos. Nenhum desses elementos deve virar caricatura.
 
