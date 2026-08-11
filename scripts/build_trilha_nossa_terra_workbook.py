@@ -88,7 +88,7 @@ def footer(pdf: canvas.Canvas, page_number: int):
     pdf.line(38, 28, PAGE_W - 38, 28)
     pdf.setFillColor(MUTED)
     pdf.setFont("Helvetica", 8)
-    pdf.drawString(38, 17, "BROTA! - TRILHA NOSSA TERRA - CADERNO DA CRIANCA")
+    pdf.drawString(38, 17, "BROTA! - TRILHA NOSSA TERRA - CADERNO DA CRIANÇA")
     pdf.drawRightString(PAGE_W - 38, 17, str(page_number))
 
 
@@ -104,7 +104,7 @@ def cover(pdf: canvas.Canvas):
     pdf.setFont("Helvetica-Bold", 13)
     pdf.drawString(68, 328, "BROTA!")
     pdf.setFont("Helvetica-Bold", 16)
-    pdf.drawString(68, 304, "UMA TRILHA PARA CRIANCAS DE 7 A 10 ANOS")
+    pdf.drawString(68, 304, "UMA TRILHA PARA CRIANÇAS DE 7 A 10 ANOS")
     pdf.setFont("Helvetica-Bold", 38)
     pdf.drawString(68, 250, "NOSSA TERRA")
     draw_text(pdf, "Caderno de pistas, ideias, testes e descobertas", 68, 214, PAGE_W - 136, size=18, leading=23, color=colors.white, font="Helvetica-Bold")
@@ -117,15 +117,15 @@ def cover(pdf: canvas.Canvas):
 def how_to_use(pdf: canvas.Canvas, page_number: int):
     pdf.setFillColor(PAPER)
     pdf.rect(0, 0, PAGE_W, PAGE_H, fill=1, stroke=0)
-    label(pdf, "ANTES DE COMECAR", 44, PAGE_H - 54)
+    label(pdf, "ANTES DE COMEÇAR", 44, PAGE_H - 54)
     pdf.setFillColor(INK)
     pdf.setFont("Helvetica-Bold", 28)
-    pdf.drawString(44, PAGE_H - 92, "Este caderno vai com voce")
-    draw_text(pdf, "Aqui nao existe resposta pronta. Cada missao pede que voce olhe, escute, experimente e guarde uma pista do lugar onde vive.", 44, PAGE_H - 126, PAGE_W - 88, size=13, leading=19)
+    pdf.drawString(44, PAGE_H - 92, "Este caderno vai com você")
+    draw_text(pdf, "Aqui não existe resposta pronta. Cada missão pede que você olhe, escute, experimente e guarde uma pista do lugar onde vive.", 44, PAGE_H - 126, PAGE_W - 88, size=13, leading=19)
     steps = [
-        ("1", "Leia o chamado", "Descubra qual pergunta vai guiar a missao."),
-        ("2", "Faca o movimento", "Use o corpo, uma conversa, um desenho ou um objeto simples."),
-        ("3", "Guarde uma pista", "Registre algo que voce viu, ouviu, testou ou mudou de ideia."),
+        ("1", "Leia o chamado", "Descubra qual pergunta vai guiar a missão."),
+        ("2", "Faça o movimento", "Use o corpo, uma conversa, um desenho ou um objeto simples."),
+        ("3", "Guarde uma pista", "Registre algo que você viu, ouviu, testou ou mudou de ideia."),
         ("4", "Conte como foi", "Marque se deu conta, precisou de ajuda ou quer tentar de outro jeito."),
     ]
     y = PAGE_H - 220
@@ -143,7 +143,7 @@ def how_to_use(pdf: canvas.Canvas, page_number: int):
         y -= 82
     rounded_box(pdf, 44, 70, PAGE_W - 88, 72, CREAM, stroke=GOLD)
     label(pdf, "LEMBRETE", 60, 122, CLAY)
-    draw_text(pdf, "Pedir ajuda, mudar de ideia e parar uma tentativa com um bom motivo tambem fazem parte da aprendizagem.", 60, 102, PAGE_W - 120, size=11.5, leading=16, font="Helvetica-Bold")
+    draw_text(pdf, "Pedir ajuda, mudar de ideia e parar uma tentativa com um bom motivo também fazem parte da aprendizagem.", 60, 102, PAGE_W - 120, size=11.5, leading=16, font="Helvetica-Bold")
     footer(pdf, page_number)
     pdf.showPage()
 
@@ -158,14 +158,14 @@ def chapter_page(pdf: canvas.Canvas, chapter: str, phases: str, text: str, page_
             pdf.circle(80 + col * 110, 100 + row * 110, 27 + ((row + col) % 3) * 8, fill=0, stroke=1)
     pdf.setFillColor(colors.white)
     pdf.setFont("Helvetica-Bold", 12)
-    pdf.drawString(54, PAGE_H - 100, f"TRECHO {index + 1} DO CAMINHO - MISSOES {phases}")
+    pdf.drawString(54, PAGE_H - 100, f"TRECHO {index + 1} DO CAMINHO - MISSÕES {phases}")
     pdf.setFont("Helvetica-Bold", 36)
     for offset, line in enumerate(wrapped_lines(chapter, "Helvetica-Bold", 36, PAGE_W - 108)):
         pdf.drawString(54, PAGE_H - 162 - offset * 42, line)
     draw_text(pdf, text, 54, PAGE_H - 275, PAGE_W - 108, size=16, leading=23, color=colors.white, font="Helvetica-Bold")
     pdf.setFillColor(colors.white)
     pdf.setFont("Helvetica", 12)
-    pdf.drawString(54, 62, "Abra espaco para observar, conversar, construir e mudar de ideia.")
+    pdf.drawString(54, 62, "Abra espaço para observar, conversar, construir e mudar de ideia.")
     pdf.setFont("Helvetica", 8)
     pdf.drawRightString(PAGE_W - 38, 20, str(page_number))
     pdf.showPage()
@@ -178,7 +178,7 @@ def mission_page(pdf: canvas.Canvas, phase: dict[str, str], page_number: int):
     pdf.roundRect(38, PAGE_H - 124, PAGE_W - 76, 78, 18, fill=1, stroke=0)
     pdf.setFillColor(colors.white)
     pdf.setFont("Helvetica-Bold", 10)
-    pdf.drawString(58, PAGE_H - 72, f"{phase['chapter'].upper()} - MISSAO {int(phase['phase']):02d}")
+    pdf.drawString(58, PAGE_H - 72, f"{phase['chapter'].upper()} - MISSÃO {int(phase['phase']):02d}")
     draw_text(pdf, phase["childCall"], 58, PAGE_H - 94, PAGE_W - 116, size=16, leading=19, color=colors.white, font="Helvetica-Bold", max_lines=2)
 
     rounded_box(pdf, 38, PAGE_H - 250, PAGE_W - 76, 102, CREAM, stroke=GOLD)
@@ -199,7 +199,7 @@ def mission_page(pdf: canvas.Canvas, phase: dict[str, str], page_number: int):
         pdf.line(54, y, PAGE_W - 54, y)
     pdf.setFillColor(MUTED)
     pdf.setFont("Helvetica-Oblique", 9.5)
-    pdf.drawString(54, PAGE_H - 390, "Desenhe, escreva, cole ou marque aqui o que voce descobriu.")
+    pdf.drawString(54, PAGE_H - 390, "Desenhe, escreva, cole ou marque aqui o que você descobriu.")
 
     label(pdf, "COMO FOI PARA MIM?", 42, 132, FOREST)
     options = [("DEI CONTA", FOREST), ("PRECISEI DE AJUDA", GOLD), ("QUERO TENTAR DE OUTRO JEITO", CLAY)]
@@ -224,14 +224,14 @@ def cutout_cards(pdf: canvas.Canvas, page_number: int):
     label(pdf, "CARTAS PARA RECORTAR", 42, PAGE_H - 48)
     pdf.setFillColor(INK)
     pdf.setFont("Helvetica-Bold", 27)
-    pdf.drawString(42, PAGE_H - 84, "Ajuda para quando a missao apertar")
+    pdf.drawString(42, PAGE_H - 84, "Ajuda para quando a missão apertar")
     cards = [
         ("PISTA", "Algo que vimos, ouvimos ou testamos de verdade.", LIGHT_GREEN, FOREST),
         ("PALPITE", "Uma ideia que ainda precisa ser conferida.", CREAM, CLAY),
         ("PEDIR AJUDA", "Dizer para quem e em qual parte o grupo travou.", colors.white, FOREST),
         ("TROCAR A ROTA", "Mudar a primeira ideia depois de encontrar uma pista nova.", LIGHT_GREEN, FOREST),
-        ("TESTAR PEQUENO", "Fazer a menor versao que consegue conversar com alguem.", CREAM, CLAY),
-        ("CUIDADO", "Parar quando faltar seguranca, consentimento ou respeito.", colors.white, CLAY),
+        ("TESTAR PEQUENO", "Fazer a menor versão que consegue conversar com alguém.", CREAM, CLAY),
+        ("CUIDADO", "Parar quando faltar segurança, consentimento ou respeito.", colors.white, CLAY),
     ]
     card_w = (PAGE_W - 102) / 2
     card_h = 188
@@ -262,10 +262,10 @@ def build():
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     phases = parse_phases()
     chapter_texts = {
-        "Abrir os olhos": "Perceber lugares, pessoas, trabalhos e perguntas que ja vivem no territorio.",
-        "Escutar quem vive aqui": "Trocar palpites por conversas, pistas reais e mais de uma ideia possivel.",
-        "Fazer e melhorar": "Construir com o que temos, testar pequeno e usar a critica para mudar.",
-        "Devolver para a comunidade": "Contar o que aprendemos, abrir a oficina e escolher um proximo cuidado.",
+        "Abrir os olhos": "Perceber lugares, pessoas, trabalhos e perguntas que já vivem no território.",
+        "Escutar quem vive aqui": "Trocar palpites por conversas, pistas reais e mais de uma ideia possível.",
+        "Fazer e melhorar": "Construir com o que temos, testar pequeno e usar a crítica para mudar.",
+        "Devolver para a comunidade": "Contar o que aprendemos, abrir a oficina e escolher um próximo cuidado.",
     }
     chapter_ranges = {
         "Abrir os olhos": "1-4",
@@ -274,7 +274,7 @@ def build():
         "Devolver para a comunidade": "12-14",
     }
     pdf = canvas.Canvas(str(OUTPUT), pagesize=A4, pageCompression=1)
-    pdf.setTitle("Brota! - Trilha Nossa Terra - Caderno da Crianca")
+    pdf.setTitle("Brota! - Trilha Nossa Terra - Caderno da Criança")
     pdf.setAuthor("Empreendedor Rural Mirim")
     cover(pdf)
     page_number = 2

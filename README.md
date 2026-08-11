@@ -15,6 +15,7 @@ Este pacote implementa uma experiência autoral de aprendizagem empreendedora pa
 - Onboarding infantil em três passos, com uma única próxima ação visível.
 - Área adulta independente em `/facilitador`, pronta para um subdomínio próprio.
 - Caderno offline da criança em `public/materials/trilha-nossa-terra-caderno-da-crianca.pdf`.
+- Interesses alteram pergunta, atividade, evidência e próximo teste nas 14 missões; a auditoria mobile está em `docs/AUDITORIA_UX_MOBILE_TRILHA_NOSSA_TERRA.md`.
 
 ## Área do facilitador em subdomínio
 

@@ -4,11 +4,16 @@ import { Bike, Bus, CloudSun, Flower2, HandHeart, Leaf, MapPinned, PackageCheck,
 export type TrackId = 'rural-kids' | 'urban-kids' | 'rural-youth' | 'urban-youth';
 
 export type JourneyVariant = {
+  id?: string;
   title: string;
   interests: string[];
   question: string;
   output: string;
   icon: LucideIcon;
+  location?: string;
+  people?: string;
+  subject?: string;
+  material?: string;
 };
 
 export type JourneyProfile = {
@@ -32,41 +37,85 @@ export const journeyProfiles: Record<TrackId, JourneyProfile> = {
     shortName: 'Nossa Terra',
     age: '7-10',
     contextLabel: 'zona rural e cidade pequena',
-    intro: 'Investigar a feira semanal, a escola, os quintais, as estradas, os pequenos comercios, os servicos e os saberes de uma cidade rural pequena.',
+    intro: 'Investigar a feira semanal, a escola, os quintais, as estradas, os pequenos comércios, os serviços e os saberes de uma cidade rural pequena.',
     artifact: 'Mapa da Nossa Terra',
     invitation: 'Abrir o mapa da Nossa Terra, escolher uma pista e criar uma melhoria pequena com quem conhece o lugar.',
-    palette: 'Praca, feira, horta, chuva, oficina, estrada, radio e vizinhanca',
+    palette: 'Praça, feira, horta, chuva, oficina, estrada, rádio e vizinhança',
     language: 'reparar, prosear, combinar, experimentar, cuidar, trocar, medir, perguntar e mostrar',
     hero: '/images/journeys/nossa-terra-mapa.png',
     heroAlt: 'Mapa ilustrado de uma pequena cidade rural brasileira com feira, escola, horta, oficina, comunidade e crianças investigadoras.',
     variants: [
       {
+        id: 'horta-clima',
         title: 'Horta esperta',
         interests: ['Horta', 'Natureza', 'Comida', 'Clima'],
         question: 'O que ajuda uma planta a crescer melhor aqui?',
-        output: 'Placa de cuidado, calendario de rega ou mini experimento de sombra e agua.',
+        output: 'Placa de cuidado, calendário de rega ou mini experimento de sombra e água.',
         icon: Sprout,
+        location: 'uma horta, um quintal ou um canteiro',
+        people: 'quem planta ou cuida da água',
+        subject: 'a relação entre planta, água, solo, sombra e tempo',
+        material: 'sementes, terra, potes reaproveitados e desenho',
       },
       {
+        id: 'feira-sabores',
         title: 'Feira viva',
-        interests: ['Feira', 'Comida', 'Familia', 'Desenho'],
+        interests: ['Feira', 'Comida', 'Família', 'Desenho'],
         question: 'Como uma banca mostra melhor o valor do que vende?',
-        output: 'Etiqueta visual, combinacao de cestas ou historia curta do produto.',
+        output: 'Etiqueta visual, combinação de cestas ou história curta do produto.',
         icon: Store,
+        location: 'uma feira, uma venda ou uma cozinha da comunidade',
+        people: 'quem produz, prepara, vende ou compra alimentos',
+        subject: 'o caminho do alimento e o que ajuda uma pessoa a escolher',
+        material: 'embalagens limpas, etiquetas, cestas e desenho',
       },
       {
+        id: 'cuidado-animal',
         title: 'Cuidado animal',
         interests: ['Animais', 'Cuidar de pessoas', 'Natureza'],
         question: 'O que os animais mostram quando precisam de cuidado?',
-        output: 'Guia de observacao, rotina combinada ou prototipo de aviso.',
+        output: 'Guia de observação, rotina combinada ou protótipo de aviso.',
         icon: HandHeart,
+        location: 'um quintal, um pasto ou um espaço onde os animais vivem',
+        people: 'quem alimenta, observa ou cuida dos animais',
+        subject: 'os sinais de bem-estar, sede, fome, abrigo e segurança',
+        material: 'cartões de sinais, barbante, papelão e desenho',
       },
       {
+        id: 'clima-tecnologia',
         title: 'Oficina do clima',
-        interests: ['Clima', 'Jogos', 'Tecnologia'],
+        interests: ['Clima', 'Tecnologia', 'Jogos'],
         question: 'Como perceber sinais do tempo antes que atrapalhem a rotina?',
-        output: 'Diario do tempo, medidor simples ou mapa de sinais do lugar.',
+        output: 'Diário do tempo, medidor simples ou mapa de sinais do lugar.',
         icon: CloudSun,
+        location: 'uma escola, uma estrada ou um ponto aberto da comunidade',
+        people: 'quem precisa decidir olhando o tempo',
+        subject: 'os sinais de chuva, calor, vento e mudança na rotina',
+        material: 'garrafa, barbante, calendário, lápis e observação do céu',
+      },
+      {
+        id: 'caminhos-comunidade',
+        title: 'Caminhos da comunidade',
+        interests: ['Escola', 'Transporte', 'Praça', 'Esporte'],
+        question: 'O que pode tornar um caminho importante mais fácil, seguro ou acolhedor?',
+        output: 'Mapa de caminho, placa de orientação ou combinado de cuidado.',
+        icon: MapPinned,
+        location: 'caminhos entre casa, escola, praça e outros pontos importantes',
+        people: 'quem caminha, pedala, dirige, estuda ou brinca por ali',
+        subject: 'os pontos fáceis, difíceis, seguros e confusos do caminho',
+        material: 'mapa em papel, sementes para marcar pontos e cartões de percurso',
+      },
+      {
+        id: 'historias-sons',
+        title: 'Histórias que circulam',
+        interests: ['Histórias', 'Música', 'Desenho', 'Família'],
+        question: 'Que história ou som daqui merece ser lembrado e compartilhado?',
+        output: 'Varal de histórias, mapa sonoro, desenho narrado ou programa curto de rádio.',
+        icon: Palette,
+        location: 'um lugar de encontro, uma casa, uma escola ou uma praça',
+        people: 'quem guarda histórias, músicas, brincadeiras e memórias do lugar',
+        subject: 'as histórias e os sons que ajudam a comunidade a se reconhecer',
+        material: 'papel, lápis, barbante, objetos sonoros e gravação autorizada',
       },
     ],
   },
@@ -207,18 +256,18 @@ export const baseInterestOptions = [
   'Jogos',
   'Desenho',
   'Tecnologia',
-  'Musica',
+  'Música',
   'Feira',
   'Natureza',
   'Comida',
   'Esporte',
-  'Historias',
+  'Histórias',
   'Cuidar de pessoas',
   'Clima',
   'Transporte',
   'Escola',
-  'Praca',
-  'Familia',
+  'Praça',
+  'Família',
 ];
 
 export function getInterestOptionsForTrack(trackId: TrackId) {
@@ -229,12 +278,17 @@ export function getInterestOptionsForTrack(trackId: TrackId) {
 
 export function getVariantForInterests(trackId: TrackId, interests: string[]) {
   const profile = journeyProfiles[trackId];
+  const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const selected = interests.map(normalize);
 
   return (
     profile.variants
       .map((variant) => ({
         variant,
-        score: variant.interests.filter((interest) => interests.includes(interest)).length,
+        score: variant.interests.reduce((score, interest) => {
+          const position = selected.indexOf(normalize(interest));
+          return position < 0 ? score : score + position + 1;
+        }, 0),
       }))
       .sort((a, b) => b.score - a.score)[0]?.variant ?? profile.variants[0]
   );

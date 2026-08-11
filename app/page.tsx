@@ -31,6 +31,7 @@ import { content } from '../lib/content';
 import { getInterestOptionsForTrack, getVariantForInterests, journeyProfiles, type TrackId } from '../lib/journeys';
 import { getConceptDeckForTrack } from '../lib/support-concepts';
 import { getRuralPhaseSupport, ruralChapters } from '../lib/rural-pilot';
+import { getInterestDrivenMission } from '../lib/rural-interest-paths';
 
 type ViewId = 'gateway' | 'map' | 'mission' | 'fieldbook' | 'mural';
 
@@ -96,10 +97,10 @@ const STORAGE_KEY = 'erm:v2:workspace';
 const INSTALL_BANNER_DISMISSED_KEY = 'erm:pwa-install-dismissed';
 
 const views = [
-  { id: 'gateway', label: 'Começar', icon: Compass },
-  { id: 'map', label: 'Meu caminho', icon: Map },
-  { id: 'mission', label: 'Missão de agora', icon: Route },
-  { id: 'fieldbook', label: 'Minhas pistas', icon: BookOpen },
+  { id: 'gateway', label: 'Início', icon: Compass },
+  { id: 'map', label: 'Caminho', icon: Map },
+  { id: 'mission', label: 'Missão', icon: Route },
+  { id: 'fieldbook', label: 'Pistas', icon: BookOpen },
   { id: 'mural', label: 'Mural', icon: MessageSquareText },
 ] satisfies Array<{ id: ViewId; label: string; icon: typeof Map }>;
 
@@ -271,9 +272,9 @@ const ecosystemSignals = [
 const evidenceKinds = [
   { value: 'desenho', label: 'Desenho', icon: FileText },
   { value: 'foto', label: 'Foto autorizada', icon: Camera },
-  { value: 'audio', label: 'Audio curto', icon: Mic2 },
+  { value: 'audio', label: 'Áudio curto', icon: Mic2 },
   { value: 'entrevista', label: 'Frase de entrevista', icon: MessageSquareText },
-  { value: 'hipotese', label: 'Hipotese', icon: Lightbulb },
+  { value: 'hipotese', label: 'Hipótese', icon: Lightbulb },
   { value: 'teste', label: 'Teste', icon: ClipboardList },
 ];
 
@@ -398,14 +399,20 @@ export default function Home() {
         ? 'Prioridade humana: acolher roadblocks antes de acelerar a turma.'
         : 'Boa hora para escolher uma evidencia antiga e planejar o proximo teste.';
   const narrative = buildNarrative(trackId, interests, mission);
-  const phaseSupport = getRuralPhaseSupport(activePhase);
+  const basePhaseSupport = getRuralPhaseSupport(activePhase);
   const activeVariant = narrative.variant;
+  const interestMission = getInterestDrivenMission(activeVariant, activePhase);
+  const phaseSupport = {
+    ...basePhaseSupport,
+    childMove: interests.length ? interestMission.movement : basePhaseSupport.childMove,
+    evidence: interests.length ? interestMission.evidence : basePhaseSupport.evidence,
+  };
   const pilotIdentity = [
     pilotProfile.school || 'Escola/rede a definir',
     pilotProfile.className || 'turma a definir',
     pilotProfile.groupName || 'grupo a definir',
   ].join(' · ');
-  const aiQuickResponse = `Comece perguntando: "${narrative.guideQuestion}" Depois peca a evidencia antes de qualquer solucao. Se a turma travar, ofereca duas opcoes de proximo passo, mas deixe o grupo escolher.`;
+  const aiQuickResponse = `Comece perguntando: "${interestMission.question}" Depois peça a evidência antes de qualquer solução. Se a turma travar, ofereça duas opções de próximo passo, mas deixe o grupo escolher.`;
   const latestEntries = currentEntries.slice(0, 3);
   const checkedSafeguards = safeguardItems.filter((item) => pilotProfile.safeguards[item.id]);
   const missingSafeguards = safeguardItems.length - checkedSafeguards.length;
@@ -799,13 +806,12 @@ export default function Home() {
         </aside>
       )}
       <section className="workspace">
-        <aside className="sidebar" aria-label="Navegacao do ecossistema">
+        <aside className="sidebar" aria-label="Navegação da trilha">
           <div>
             <p className="eyebrow">Brota!</p>
             <h1>Ideias que começam onde a gente vive</h1>
             <p className="lede">
-              Um mapa narrativo para observar sistemas, conversar com pessoas, criar hipoteses,
-              prototipar e usar IA sem terceirizar autoria.
+              Uma trilha para observar, conversar com pessoas, criar ideias e melhorar a Nossa Terra.
             </p>
           </div>
 
@@ -818,7 +824,7 @@ export default function Home() {
 
           <div className="progress-panel">
             <div>
-              <span>{complete}/14 missoes concluidas</span>
+              <span>{complete}/14 missões concluídas</span>
               <strong>{pct}%</strong>
             </div>
             <div className="progress" ref={progressRef} aria-label={`Progresso ${pct}%`}>
@@ -827,7 +833,7 @@ export default function Home() {
             <div className="storage-panel">
               <span>
                 <Save size={15} />
-                {hasHydrated ? 'Salvo neste navegador' : 'Preparando memoria local'}
+                {hasHydrated ? 'Salvo neste navegador' : 'Preparando memória local'}
               </span>
               <button className="text-action" type="button" onClick={resetWorkspace}>
                 <RotateCcw size={15} />
@@ -838,7 +844,7 @@ export default function Home() {
         </aside>
 
         <section className="mainstage" ref={mainstageRef}>
-          <nav className="view-tabs" aria-label="Areas do ecossistema">
+          <nav className="view-tabs" aria-label="Áreas da trilha">
             {views.map((item) => {
               const Icon = item.icon;
               return (
@@ -863,7 +869,7 @@ export default function Home() {
                   <p className="eyebrow">{trackProfile.name}</p>
                   <h2>{trackProfile.name}</h2>
                   <p>{trackProfile.intro}</p>
-                  <p className="narrative-line">{narrative.hook}</p>
+                  <p className="narrative-line">{interestMission.hook}</p>
                 </div>
                 <figure className="ecosystem-figure journey-figure" data-motion-anchor>
                   <img src={trackProfile.hero} alt={trackProfile.heroAlt} />
@@ -885,7 +891,7 @@ export default function Home() {
                 ))}
               </div>
 
-              <div className="phase-map" aria-label="Mapa de missoes">
+              <div className="phase-map" aria-label="Mapa de missões">
                 {track.missions.map((item) => (
                   <button
                     className={`phase-node ${item.phase === activePhase ? 'current' : ''} ${
@@ -910,17 +916,17 @@ export default function Home() {
             <section className="mission-view" data-motion-surface>
               <div className="mission-hero">
                 <div>
-                  <p className="eyebrow">{phaseSupport.chapter} · Missao {String(mission.phase).padStart(2, '0')}</p>
+                  <p className="eyebrow">{phaseSupport.chapter} · Missão {String(mission.phase).padStart(2, '0')}</p>
                   <h2>{mission.title}</h2>
                   <p>{phaseSupport.childCall}</p>
-                  <p className="narrative-line">{narrative.hook}</p>
+                  <p className="narrative-line">{interestMission.hook}</p>
                 </div>
                 <button
                   className="primary-action"
-                  onClick={() => setDone((state) => ({ ...state, [mission.id]: !state[mission.id] }))}
+                  onClick={() => setView('fieldbook')}
                 >
-                  <CheckCircle2 size={18} />
-                  {done[mission.id] ? 'Concluida' : 'Marcar evidencia'}
+                  <BookOpen size={18} />
+                  {done[mission.id] ? 'Ver minha pista' : 'Guardar minha pista'}
                 </button>
               </div>
 
@@ -929,7 +935,7 @@ export default function Home() {
                   <div className="guide-heading">
                     <span className="guide-avatar" aria-hidden="true">{phaseSupport.icon}</span>
                     <div>
-                      <p className="eyebrow">Caderno da crianca</p>
+                      <p className="eyebrow">Caderno da criança</p>
                       <h3>Seu movimento nesta missão</h3>
                     </div>
                   </div>
@@ -947,88 +953,23 @@ export default function Home() {
 
               </section>
 
-              <div className="mission-layout">
-                <article className="task-card" data-motion-item>
-                  <ClipboardList size={22} />
-                  <h3>Pista no caderno</h3>
-                  <p>{phaseSupport.evidence}</p>
-                </article>
-                <article className="task-card strong" data-motion-item>
-                  <Route size={22} />
-                  <h3>Movimento no território</h3>
-                  <p>{phaseSupport.childMove}</p>
-                </article>
-                <article className="task-card" data-motion-item>
-                  <Bot size={22} />
-                  <h3>IA facilitadora</h3>
-                  <p>{mission.aiPrepPt}</p>
-                </article>
-              </div>
-
-              <div className="narrative-panel" data-motion-item>
+              <details className="mission-more" data-motion-item>
+                <summary>Ver pergunta e próximo teste</summary>
                 <div>
-                  <p className="eyebrow">Motor narrativo</p>
-                  <h3>Da curiosidade ao teste real</h3>
+                  <p className="eyebrow">Sua escolha nesta missão</p>
+                  <h3>{activeVariant.title}</h3>
                 </div>
                 <div className="narrative-grid">
                   <article>
-                    <span>Cena</span>
-                    <p>{narrative.scene}</p>
+                    <span>Pergunta para investigar</span>
+                    <p>{interestMission.question}</p>
                   </article>
                   <article>
-                    <span>Pergunta-guia</span>
-                    <p>{narrative.guideQuestion}</p>
-                  </article>
-                  <article>
-                    <span>Evidencia esperada</span>
-                    <p>{narrative.evidencePrompt}</p>
-                  </article>
-                  <article>
-                    <span>Proximo teste</span>
-                    <p>{narrative.nextTest}</p>
+                    <span>Próximo teste</span>
+                    <p>{interestMission.nextTest}</p>
                   </article>
                 </div>
-              </div>
-
-              <div className="loop-panel" data-motion-item>
-                <h3>Cena cognitiva</h3>
-                <ol>
-                  {cognitiveLoop.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ol>
-              </div>
-
-              <div className="learning-panel" data-motion-item>
-                <div>
-                  <p className="eyebrow">Bussola de aprendizagem</p>
-                  <h3>Como esta missao protege curiosidade, memoria e autoria</h3>
-                </div>
-                <div className="learning-grid">
-                  {learningPrinciples.map((principle) => (
-                    <article className="learning-card" key={principle.title}>
-                      <span>{principle.title}</span>
-                      <p>{principle.text}</p>
-                    </article>
-                  ))}
-                </div>
-              </div>
-
-              <div className="maker-panel" data-motion-item>
-                <div>
-                  <p className="eyebrow">Kit maker</p>
-                  <h3>Do pensamento ao prototipo criticavel</h3>
-                </div>
-                <div className="maker-grid">
-                  {makerCards.map((card) => (
-                    <article className="maker-card" key={card.title}>
-                      <span>{card.title}</span>
-                      <p>{card.text}</p>
-                      <small>{card.tool}</small>
-                    </article>
-                  ))}
-                </div>
-              </div>
+              </details>
             </section>
           )}
 
@@ -1179,11 +1120,17 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
-                <div className="story-preview">
+                <div className="story-preview" aria-live="polite">
                   <WandSparkles size={20} />
-                  <p>
-                    <strong>{activeVariant.title}.</strong> {narrative.hook}
-                  </p>
+                  <div>
+                    <p><strong>{activeVariant.title}</strong></p>
+                    <p>{interests.length ? interestMission.hook : 'Escolha uma curiosidade para adaptar as atividades da trilha.'}</p>
+                    {interests.length > 0 && (
+                      <ul className="interest-impact-list">
+                        {interestMission.changes.map((change) => <li key={change}>{change}</li>)}
+                      </ul>
+                    )}
+                  </div>
                 </div>
                 <div className="onboarding-cta">
                   <div>
@@ -1209,9 +1156,9 @@ export default function Home() {
             <section className="fieldbook-view" data-motion-surface>
               <div className="section-head">
                 <p className="eyebrow">Caderno de campo</p>
-                <h2>Memoria viva da trilha</h2>
+                <h2>Memória viva da trilha</h2>
                 <p>
-                  Cada registro deve separar observacao, hipotese, evidencia, decisao e proximo teste.
+                  Guarde o que você observou, a pista encontrada e o que quer testar depois.
                 </p>
               </div>
 
@@ -1219,7 +1166,7 @@ export default function Home() {
                 <form className="field-form" data-motion-item onSubmit={addFieldEntry}>
                   <div className="form-heading">
                     <div>
-                      <p className="eyebrow">Registro da missao atual</p>
+                      <p className="eyebrow">Registro da missão atual</p>
                       <h3>
                         {String(mission.phase).padStart(2, '0')}. {mission.title}
                       </h3>
@@ -1231,7 +1178,7 @@ export default function Home() {
                   </div>
 
                   <label>
-                    Tipo de evidencia
+                    Tipo de evidência
                     <select
                       value={fieldDraft.kind}
                       onChange={(event) => updateFieldDraft('kind', event.target.value)}
@@ -1246,7 +1193,7 @@ export default function Home() {
 
                   <div className="form-grid">
                     <label>
-                      Observacao
+                      Observação
                       <textarea
                         value={fieldDraft.observation}
                         onChange={(event) => updateFieldDraft('observation', event.target.value)}
@@ -1254,7 +1201,7 @@ export default function Home() {
                       />
                     </label>
                     <label>
-                      Hipotese
+                      Hipótese
                       <textarea
                         value={fieldDraft.hypothesis}
                         onChange={(event) => updateFieldDraft('hypothesis', event.target.value)}
@@ -1262,7 +1209,7 @@ export default function Home() {
                       />
                     </label>
                     <label>
-                      Evidencia
+                      Evidência
                       <textarea
                         value={fieldDraft.evidence}
                         onChange={(event) => updateFieldDraft('evidence', event.target.value)}
@@ -1270,7 +1217,7 @@ export default function Home() {
                       />
                     </label>
                     <label>
-                      Decisao do time
+                      Decisão do time
                       <textarea
                         value={fieldDraft.decision}
                         onChange={(event) => updateFieldDraft('decision', event.target.value)}
@@ -1280,11 +1227,11 @@ export default function Home() {
                   </div>
 
                   <label>
-                    Proximo teste pequeno
+                    Próximo teste pequeno
                     <input
                       value={fieldDraft.nextTest}
                       onChange={(event) => updateFieldDraft('nextTest', event.target.value)}
-                      placeholder={narrative.nextTest}
+                      placeholder={interestMission.nextTest}
                     />
                   </label>
 
@@ -1302,9 +1249,9 @@ export default function Home() {
                   <div className="entry-panel-head">
                     <div>
                       <p className="eyebrow">Registros desta trilha</p>
-                      <h3>{currentEntries.length} evidencias</h3>
+                      <h3>{currentEntries.length} {currentEntries.length === 1 ? 'evidência' : 'evidências'}</h3>
                     </div>
-                    <span>{missionEntries.length} nesta missao</span>
+                    <span>{missionEntries.length} nesta missão</span>
                   </div>
 
                   <div className="entry-list">
@@ -1326,12 +1273,12 @@ export default function Home() {
                                 {kind?.label ?? entry.kind}
                               </span>
                               <small>
-                                Missao {String(entry.phase).padStart(2, '0')} · {entry.createdAt}
+                                Missão {String(entry.phase).padStart(2, '0')} · {entry.createdAt}
                               </small>
                             </div>
                             <h4>{entry.missionTitle}</h4>
                             <p>{entry.observation || entry.evidence}</p>
-                            {entry.nextTest && <strong>Proximo teste: {entry.nextTest}</strong>}
+                            {entry.nextTest && <strong>Próximo teste: {entry.nextTest}</strong>}
                             <button
                               className="icon-action"
                               type="button"
