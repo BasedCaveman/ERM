@@ -3,12 +3,14 @@
 import {
   BookOpen,
   Bot,
+  Bird,
   Camera,
   CheckCircle2,
   ClipboardList,
   Compass,
   Download,
   FileText,
+  Flower2,
   Lightbulb,
   Map,
   MessageSquareText,
@@ -18,8 +20,12 @@ import {
   RotateCcw,
   Route,
   Save,
+  ShieldCheck,
   Share2,
   Sparkles,
+  Sprout,
+  Star,
+  Sun,
   Trash2,
   UserRoundCheck,
   WandSparkles,
@@ -32,6 +38,8 @@ import { getInterestOptionsForTrack, getVariantForInterests, journeyProfiles, ty
 import { getConceptDeckForTrack } from '../lib/support-concepts';
 import { getRuralPhaseSupport, ruralChapters } from '../lib/rural-pilot';
 import { getInterestDrivenMission } from '../lib/rural-interest-paths';
+import { avatarColors, avatarIconIds, type AvatarIconId, type ChildProfile } from '../lib/child-profiles';
+import { clearLocalWorkspace, readLocalWorkspace, writeLocalWorkspace } from '../lib/local-vault';
 
 type ViewId = 'gateway' | 'map' | 'mission' | 'fieldbook' | 'mural';
 
@@ -52,6 +60,7 @@ type FieldEntry = FieldDraft & {
   missionTitle: string;
   phase: number;
   createdAt: string;
+  childProfileId?: string;
 };
 
 type SavedWorkspace = {
@@ -59,9 +68,12 @@ type SavedWorkspace = {
   done?: Record<string, boolean>;
   fieldEntries?: FieldEntry[];
   interests?: string[];
+  interestsByChild?: Record<string, string[]>;
   pilotProfile?: PilotProfile;
   roadblocks?: Roadblock[];
   trackId?: TrackId;
+  childProfiles?: ChildProfile[];
+  activeChildId?: string;
 };
 
 type PilotProfile = {
@@ -103,6 +115,14 @@ const views = [
   { id: 'fieldbook', label: 'Pistas', icon: BookOpen },
   { id: 'mural', label: 'Mural', icon: MessageSquareText },
 ] satisfies Array<{ id: ViewId; label: string; icon: typeof Map }>;
+
+const avatarIcons = {
+  sprout: Sprout,
+  sun: Sun,
+  bird: Bird,
+  flower: Flower2,
+  star: Star,
+} satisfies Record<AvatarIconId, typeof Sprout>;
 
 const narrativeSeeds: Record<TrackId, NarrativeSeed[]> = {
   'rural-kids': [
@@ -369,7 +389,13 @@ export default function Home() {
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [fieldDraft, setFieldDraft] = useState<FieldDraft>(emptyDraft);
   const [fieldEntries, setFieldEntries] = useState<FieldEntry[]>([]);
-  const [interests, setInterests] = useState<string[]>([]);
+  const [interestsByChild, setInterestsByChild] = useState<Record<string, string[]>>({});
+  const [childProfiles, setChildProfiles] = useState<ChildProfile[]>([]);
+  const [activeChildId, setActiveChildId] = useState('');
+  const [profileName, setProfileName] = useState('');
+  const [profileIcon, setProfileIcon] = useState<AvatarIconId>('sprout');
+  const [profileColor, setProfileColor] = useState<string>(avatarColors[0]);
+  const [showProfileCreator, setShowProfileCreator] = useState(false);
   const [pilotProfile, setPilotProfile] = useState<PilotProfile>(emptyPilotProfile);
   const [roadblockDraft, setRoadblockDraft] = useState('');
   const [roadblocks, setRoadblocks] = useState<Roadblock[]>([]);
@@ -383,14 +409,22 @@ export default function Home() {
 
   const track = useMemo(() => content.tracks.find((item) => item.id === trackId)!, [trackId]);
   const trackProfile = journeyProfiles[trackId];
+  const mission = track.missions.find((item) => item.phase === activePhase) ?? track.missions[0];
+  const activeChild = childProfiles.find((profile) => profile.id === activeChildId) ?? childProfiles[0];
+  const ActiveAvatarIcon = activeChild ? avatarIcons[activeChild.avatarIcon] : Sprout;
+  const missionKey = activeChild ? `${activeChild.id}:${mission.id}` : `sem-perfil:${mission.id}`;
+  const interests = activeChild ? interestsByChild[activeChild.id] ?? [] : [];
   const interestOptions = useMemo(() => getInterestOptionsForTrack(trackId), [trackId]);
   const conceptDeck = useMemo(() => getConceptDeckForTrack(trackId), [trackId]);
-  const mission = track.missions.find((item) => item.phase === activePhase) ?? track.missions[0];
-  const complete = track.missions.filter((item) => done[item.id]).length;
+  const complete = activeChild
+    ? track.missions.filter((item) => done[`${activeChild.id}:${item.id}`]).length
+    : 0;
   const pct = Math.round((complete / track.missions.length) * 100);
-  const currentEntries = fieldEntries.filter((entry) => entry.trackId === trackId);
+  const currentEntries = fieldEntries.filter(
+    (entry) => entry.trackId === trackId && Boolean(activeChild) && entry.childProfileId === activeChild?.id,
+  );
   const missionEntries = currentEntries.filter((entry) => entry.missionId === mission.id);
-  const sharedEntries = fieldEntries.filter((entry) => entry.shared);
+  const sharedEntries = currentEntries.filter((entry) => entry.shared);
   const openRoadblocks = roadblocks.filter((item) => item.status === 'aberto').length;
   const pilotSignal =
     currentEntries.length === 0
@@ -464,11 +498,15 @@ export default function Home() {
   ].join('\n');
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
+    let cancelled = false;
 
-      if (raw) {
-        const saved = JSON.parse(raw) as SavedWorkspace;
+    async function hydrateWorkspace() {
+      try {
+        const stored = await readLocalWorkspace<SavedWorkspace>();
+        const legacyRaw = window.localStorage.getItem(STORAGE_KEY);
+        const saved = stored ?? (legacyRaw ? (JSON.parse(legacyRaw) as SavedWorkspace) : null);
+
+        if (saved && !cancelled) {
 
         setTrackId('rural-kids');
 
@@ -484,8 +522,13 @@ export default function Home() {
           setFieldEntries(saved.fieldEntries);
         }
 
-        if (Array.isArray(saved.interests)) {
-          setInterests(saved.interests.filter((item) => typeof item === 'string'));
+        if (saved.interestsByChild && typeof saved.interestsByChild === 'object') {
+          setInterestsByChild(saved.interestsByChild);
+        }
+
+        if (Array.isArray(saved.childProfiles)) {
+          setChildProfiles(saved.childProfiles);
+          setActiveChildId(saved.activeChildId || saved.childProfiles[0]?.id || '');
         }
 
         if (saved.pilotProfile && typeof saved.pilotProfile === 'object') {
@@ -495,12 +538,20 @@ export default function Home() {
         if (Array.isArray(saved.roadblocks)) {
           setRoadblocks(saved.roadblocks);
         }
+        }
+
+        if (legacyRaw && !stored) {
+          window.localStorage.removeItem(STORAGE_KEY);
+        }
+      } catch {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } finally {
+        if (!cancelled) setHasHydrated(true);
       }
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
-    } finally {
-      setHasHydrated(true);
     }
+
+    void hydrateWorkspace();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -541,19 +592,20 @@ export default function Home() {
       return;
     }
 
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
+    void writeLocalWorkspace(
+      {
         activePhase,
+        activeChildId,
+        childProfiles,
         done,
         fieldEntries,
-        interests,
+        interestsByChild,
         pilotProfile,
         roadblocks,
         trackId,
-      } satisfies SavedWorkspace),
+      } satisfies SavedWorkspace,
     );
-  }, [activePhase, done, fieldEntries, hasHydrated, interests, pilotProfile, roadblocks, trackId]);
+  }, [activeChildId, activePhase, childProfiles, done, fieldEntries, hasHydrated, interestsByChild, pilotProfile, roadblocks, trackId]);
 
   useEffect(() => {
     if (!hasHydrated || prefersReducedMotion()) {
@@ -615,7 +667,7 @@ export default function Home() {
   }, [complete, hasHydrated]);
 
   useEffect(() => {
-    if (!hasHydrated || prefersReducedMotion() || !done[mission.id]) {
+    if (!hasHydrated || prefersReducedMotion() || !done[missionKey]) {
       return;
     }
 
@@ -635,7 +687,25 @@ export default function Home() {
     return () => {
       animation.revert();
     };
-  }, [done, hasHydrated, mission.id]);
+  }, [done, hasHydrated, mission.id, missionKey]);
+
+  function createChildProfile(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const displayName = profileName.trim();
+    if (!displayName) return;
+
+    const profile: ChildProfile = {
+      id: window.crypto.randomUUID(),
+      displayName: displayName.slice(0, 24),
+      avatarIcon: profileIcon,
+      avatarColor: profileColor,
+      createdAt: new Date().toISOString(),
+    };
+    setChildProfiles((profiles) => [...profiles, profile]);
+    setActiveChildId(profile.id);
+    setProfileName('');
+    setShowProfileCreator(false);
+  }
 
   function updateFieldDraft(field: keyof FieldDraft, value: string | boolean) {
     setFieldDraft((draft) => ({ ...draft, [field]: value }));
@@ -677,10 +747,11 @@ export default function Home() {
         hour: '2-digit',
         minute: '2-digit',
       }),
+      childProfileId: activeChild?.id,
     };
 
     setFieldEntries((entries) => [entry, ...entries]);
-    setDone((state) => ({ ...state, [mission.id]: true }));
+    setDone((state) => ({ ...state, [missionKey]: true }));
     setFieldDraft(emptyDraft);
     setMotionSignal((signal) => signal + 1);
   }
@@ -690,12 +761,17 @@ export default function Home() {
   }
 
   function toggleInterest(interest: string) {
-    setInterests((current) => {
+    if (!activeChild) return;
+    setInterestsByChild((byChild) => {
+      const current = byChild[activeChild.id] ?? [];
       if (current.includes(interest)) {
-        return current.filter((item) => item !== interest);
+        return { ...byChild, [activeChild.id]: current.filter((item) => item !== interest) };
       }
 
-      return current.length >= 2 ? [current[1], interest] : [...current, interest];
+      return {
+        ...byChild,
+        [activeChild.id]: current.length >= 2 ? [current[1], interest] : [...current, interest],
+      };
     });
     setMotionSignal((signal) => signal + 1);
   }
@@ -738,12 +814,15 @@ export default function Home() {
     );
   }
 
-  function resetWorkspace() {
+  async function resetWorkspace() {
     window.localStorage.removeItem(STORAGE_KEY);
+    await clearLocalWorkspace();
     setDone({});
     setFieldDraft(emptyDraft);
     setFieldEntries([]);
-    setInterests([]);
+    setInterestsByChild({});
+    setChildProfiles([]);
+    setActiveChildId('');
     setPilotProfile(emptyPilotProfile);
     setRoadblockDraft('');
     setRoadblocks([]);
@@ -895,7 +974,7 @@ export default function Home() {
                 {track.missions.map((item) => (
                   <button
                     className={`phase-node ${item.phase === activePhase ? 'current' : ''} ${
-                      done[item.id] ? 'done' : ''
+                      done[activeChild ? `${activeChild.id}:${item.id}` : item.id] ? 'done' : ''
                     }`}
                     data-motion-item
                     key={item.id}
@@ -926,7 +1005,7 @@ export default function Home() {
                   onClick={() => setView('fieldbook')}
                 >
                   <BookOpen size={18} />
-                  {done[mission.id] ? 'Ver minha pista' : 'Guardar minha pista'}
+                  {done[missionKey] ? 'Ver minha pista' : 'Guardar minha pista'}
                 </button>
               </div>
 
@@ -1087,6 +1166,96 @@ export default function Home() {
                 </figure>
               </div>
 
+              <section className="child-profile-panel" aria-labelledby="child-profile-title">
+                <div className="child-profile-heading">
+                  <div>
+                    <p className="eyebrow">Perfil neste aparelho</p>
+                    <h3 id="child-profile-title">Quem vai fazer a trilha?</h3>
+                    <p>Use um nome inventado ou apelido. Não precisa colocar seu nome verdadeiro.</p>
+                  </div>
+                  {activeChild && (
+                    <div className="active-child-badge">
+                      <span style={{ backgroundColor: activeChild.avatarColor }}><ActiveAvatarIcon size={26} /></span>
+                      <strong>{activeChild.displayName}</strong>
+                    </div>
+                  )}
+                </div>
+
+                {childProfiles.length > 0 && (
+                  <div className="child-profile-list" aria-label="Perfis deste aparelho">
+                    {childProfiles.map((profile) => {
+                      const AvatarIcon = avatarIcons[profile.avatarIcon];
+                      return (
+                        <button
+                          className={profile.id === activeChild?.id ? 'selected' : ''}
+                          key={profile.id}
+                          type="button"
+                          onClick={() => setActiveChildId(profile.id)}
+                        >
+                          <span style={{ backgroundColor: profile.avatarColor }}><AvatarIcon size={20} /></span>
+                          {profile.displayName}
+                        </button>
+                      );
+                    })}
+                    <button type="button" onClick={() => setShowProfileCreator(true)}>
+                      <Plus size={18} /> Novo perfil
+                    </button>
+                  </div>
+                )}
+
+                {(childProfiles.length === 0 || showProfileCreator) && (
+                  <form className="child-profile-form" onSubmit={createChildProfile}>
+                    <label>
+                      Nome para usar na Brota!
+                      <input
+                        autoComplete="off"
+                        maxLength={24}
+                        value={profileName}
+                        onChange={(event) => setProfileName(event.target.value)}
+                        placeholder="Ex.: Semente Azul"
+                      />
+                    </label>
+                    <fieldset>
+                      <legend>Escolha seu símbolo</legend>
+                      <div className="avatar-options">
+                        {avatarIconIds.map((iconId) => {
+                          const AvatarIcon = avatarIcons[iconId];
+                          return (
+                            <button
+                              aria-label={`Símbolo ${iconId}`}
+                              className={profileIcon === iconId ? 'selected' : ''}
+                              key={iconId}
+                              type="button"
+                              onClick={() => setProfileIcon(iconId)}
+                            ><AvatarIcon size={24} /></button>
+                          );
+                        })}
+                      </div>
+                    </fieldset>
+                    <fieldset>
+                      <legend>Escolha uma cor</legend>
+                      <div className="avatar-colors">
+                        {avatarColors.map((color) => (
+                          <button
+                            aria-label={`Cor ${color}`}
+                            className={profileColor === color ? 'selected' : ''}
+                            key={color}
+                            style={{ backgroundColor: color }}
+                            type="button"
+                            onClick={() => setProfileColor(color)}
+                          />
+                        ))}
+                      </div>
+                    </fieldset>
+                    <div className="profile-form-actions">
+                      {childProfiles.length > 0 && <button type="button" onClick={() => setShowProfileCreator(false)}>Cancelar</button>}
+                      <button className="primary-action compact" disabled={!profileName.trim()} type="submit">Criar meu perfil</button>
+                    </div>
+                  </form>
+                )}
+                <small className="local-privacy-note"><ShieldCheck size={15} /> Este perfil fica somente neste aparelho.</small>
+              </section>
+
               <div className="onboarding-path" aria-label="Como começar">
                 <article className="onboarding-step active">
                   <span>1</span>
@@ -1138,8 +1307,8 @@ export default function Home() {
                     <strong>Missão 01 · Mapa de pistas</strong>
                   </div>
                   <div className="onboarding-actions">
-                    <button className="primary-action" type="button" onClick={() => enterTrack('rural-kids')}>
-                      Começar minha primeira missão
+                    <button className="primary-action" disabled={!activeChild} type="button" onClick={() => enterTrack('rural-kids')}>
+                      {activeChild ? 'Começar minha primeira missão' : 'Crie um perfil para começar'}
                       <Route size={18} />
                     </button>
                     <a className="workbook-download" href="/materials/trilha-nossa-terra-caderno-da-crianca.pdf" download>
@@ -1178,7 +1347,7 @@ export default function Home() {
                   </div>
 
                   <label>
-                    Tipo de evidência
+                    Tipo de pista
                     <select
                       value={fieldDraft.kind}
                       onChange={(event) => updateFieldDraft('kind', event.target.value)}
@@ -1190,6 +1359,20 @@ export default function Home() {
                       ))}
                     </select>
                   </label>
+
+                  {(fieldDraft.kind === 'foto' || fieldDraft.kind === 'audio') && (
+                    <div className="adult-media-gate" role="note">
+                      <ShieldCheck size={22} />
+                      <div>
+                        <strong>Esta pista precisa de um adulto</strong>
+                        <p>
+                          Peça a um responsável ou facilitador para fazer a captura. Você pode continuar
+                          escrevendo o que percebeu, mas a câmera e o microfone não abrem nesta área.
+                        </p>
+                        <a href="/facilitador#captura-evidencias">Abrir a área do adulto</a>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="form-grid">
                     <label>
@@ -1241,7 +1424,7 @@ export default function Home() {
                       type="checkbox"
                       onChange={(event) => updateFieldDraft('shared', event.target.checked)}
                     />
-                    Enviar este registro para o mural coletivo
+                    Mostrar este registro no mural local deste aparelho
                   </label>
                 </form>
 

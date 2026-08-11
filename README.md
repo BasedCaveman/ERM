@@ -16,12 +16,16 @@ Este pacote implementa uma experiência autoral de aprendizagem empreendedora pa
 - Área adulta independente em `/facilitador`, pronta para um subdomínio próprio.
 - Caderno offline da criança em `public/materials/trilha-nossa-terra-caderno-da-crianca.pdf`.
 - Interesses alteram pergunta, atividade, evidência e próximo teste nas 14 missões; a auditoria mobile está em `docs/AUDITORIA_UX_MOBILE_TRILHA_NOSSA_TERRA.md`.
+- Perfis infantis pseudônimos, com nome escolhido e avatar, ficam somente no aparelho e mantêm interesses e progresso separados.
+- Câmera e microfone não são abertos na área infantil. A captura individual ou em massa acontece na área adulta e os arquivos são descartados após a confirmação.
 
 ## Área do facilitador em subdomínio
 
 Configure `FACILITATOR_HOST=facilitador.seudominio.com` no ambiente de produção e aponte esse domínio para o mesmo projeto. O proxy reescreve a raiz desse host para `/facilitador`; a plataforma principal continua focada apenas na criança.
 
 Até o DNS ser configurado, a área pode ser validada diretamente em `/facilitador`.
+
+No piloto, a entrada adulta usa uma confirmação local e transparente, não uma autenticação real. A implantação deverá conectar Google Auth apenas para responsáveis e facilitadores, sem criar login infantil nem enviar perfis, interesses, progresso, imagens ou áudios das crianças ao servidor.
 
 ## Rodar localmente
 ```bash

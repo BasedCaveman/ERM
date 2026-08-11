@@ -1,5 +1,6 @@
 import { BookOpen, Eye, Map, ShieldCheck, UserRoundCheck } from 'lucide-react';
 import { ruralChapters, ruralPhaseSupport } from '../../lib/rural-pilot';
+import EvidenceCapture from './EvidenceCapture';
 
 export const metadata = {
   title: 'Facilitador - Trilha Nossa Terra',
@@ -24,6 +25,8 @@ export default function FacilitatorPage() {
         <article><ShieldCheck /><strong>Cuidado primeiro</strong><span>Consentimento, privacidade, segurança e direito de pausar.</span></article>
         <article><BookOpen /><strong>Evidência descritiva</strong><span>Registrar ações observáveis, nunca selo, ranking ou perfil fixo.</span></article>
       </section>
+
+      <EvidenceCapture />
 
       <section className="facilitator-chapters">
         {ruralChapters.map((chapter) => (
